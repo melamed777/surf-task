@@ -1,0 +1,36 @@
+terraform {
+  required_providers {
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.13"
+    }
+  }
+}
+
+locals {
+  use_oci = var.chart_source == "oci"
+}
+
+resource "helm_release" "this" {
+  name      = var.release_name
+  namespace = var.namespace
+
+  # Chart source toggle: a local path bypasses 'repository' entirely;
+  # OCI mode sets repository to oci://... and pins a version.
+  chart      = local.use_oci ? "generic-app" : var.chart_local_path
+  repository = local.use_oci ? var.chart_oci_repo : null
+  version    = local.use_oci ? var.chart_version : null
+
+  values = [yamlencode({
+    replicaCount = var.replicas
+    image = {
+      repository = var.image_repo
+      tag        = var.image_tag
+    }
+    ingress = {
+      enabled   = true
+      className = "nginx"
+      host      = var.host
+    }
+  })]
+}

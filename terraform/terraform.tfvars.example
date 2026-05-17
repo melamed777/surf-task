@@ -1,0 +1,4 @@
+ghcr_owner    = "your-github-username"
+image_tag     = "latest"
+chart_source  = "local"   # or "oci" once CI has published the chart
+chart_version = "0.1.0"
