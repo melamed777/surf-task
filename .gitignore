@@ -1,0 +1,12 @@
+.secrets
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+*.tfvars
+!terraform.tfvars.example
+crash.log
+crash.*.log
+node_modules/
+*.tgz
+.DS_Store
