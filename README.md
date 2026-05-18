@@ -1,7 +1,8 @@
 # surf-task — Terraform-driven apps on a local kind cluster
 
-Provisions a local Kubernetes cluster (kind), installs ingress-nginx, and
-deploys N web apps + podinfo via Helm — all from a single `terraform apply`.
+Provisions a local Kubernetes cluster (kind), installs ingress-nginx +
+metrics-server, and deploys N web apps + podinfo — either directly via
+Terraform/Helm, or via ArgoCD (GitOps). One `terraform apply` either way.
 
 ```
 ┌─ Act (local) ────────────────────────────────────────────┐
@@ -14,8 +15,15 @@ deploys N web apps + podinfo via Helm — all from a single `terraform apply`.
 ┌─ terraform apply (local) ────────────────────────────────┐
 │  kind_cluster (control-plane + worker, ports 80/443)     │
 │  helm_release ingress-nginx                              │
-│  module "app" × N  (for_each over var.apps)              │
-│  helm_release podinfo (upstream OCI chart)               │
+│  helm_release metrics-server                             │
+│                                                          │
+│  ── Mode A (default): enable_gitops = false ──           │
+│     module "app" × N  (for_each over var.apps)           │
+│     helm_release podinfo                                 │
+│                                                          │
+│  ── Mode B: enable_gitops = true ──                      │
+│     helm_release argocd                                  │
+│     root Application → syncs gitops/                     │
 └──────────────────────────────────────────────────────────┘
                           │
                           ▼
@@ -66,7 +74,10 @@ This builds `app1` and `app2`, pushes them to
 `ghcr.io/<you>/app1:latest` and `ghcr.io/<you>/app2:latest`, packages
 `charts/generic-app` and pushes it to `oci://ghcr.io/<you>/charts/generic-app`.
 
-## Deploy
+## Deploy — Mode A: Terraform-direct (default)
+
+Terraform installs the cluster, the controllers, **and** the apps in one
+shot. The simplest path.
 
 ```bash
 cd terraform
@@ -87,6 +98,52 @@ curl http://podinfo.localtest.me
 Refreshing in a browser will rotate through pods (load-balanced by the
 Service) — you can watch `podName` change.
 
+## Deploy — Mode B: GitOps via ArgoCD
+
+Terraform installs the cluster, the controllers, and ArgoCD; ArgoCD then
+syncs everything in `gitops/` from this repo. Adding an app becomes a git
+push, not a `terraform apply`.
+
+1. Push this repo to GitHub (the cluster needs to reach a remote URL).
+2. Rewrite the placeholder in the manifests with your GitHub username:
+   ```bash
+   sed -i '' 's/REPLACE_ME_OWNER/<your-github-username>/g' gitops/*.yaml
+   git add gitops/ && git commit -m 'set repo owner' && git push
+   ```
+3. Enable the mode and point Terraform at the repo:
+   ```hcl
+   # terraform.tfvars
+   enable_gitops = true
+   repo_url      = "https://github.com/<your-github-username>/surf-task"
+   ```
+4. ```bash
+   cd terraform
+   terraform apply
+   ```
+
+Access the ArgoCD UI:
+
+```bash
+kubectl port-forward -n argocd svc/argocd-server 8080:80
+kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath='{.data.password}' | base64 -d ; echo
+# username: admin
+# open http://localhost:8080
+```
+
+You'll see three Applications (`app1`, `app2`, `podinfo`) being reconciled.
+Edit a values block in `gitops/app1.yaml`, push — within a minute ArgoCD
+applies it.
+
+## Metrics
+
+`metrics-server` is installed in both modes, so `kubectl top` works:
+
+```bash
+kubectl top pods -A
+kubectl top nodes
+```
+
 ## Tear down
 
 ```bash
@@ -100,21 +157,23 @@ This is the "minimal lines for app #3" bonus.
 
 1. `cp -r apps/app1 apps/app3` and tweak.
 2. Add `app3` to the matrix in `.github/workflows/build-and-publish.yml`.
-3. Add one entry to `var.apps` in `terraform/variables.tf` (or override in
-   tfvars):
+3. **Mode A:** add one entry to `var.apps` in `terraform/variables.tf` (or
+   override in tfvars):
    ```hcl
    app3 = {
      image = "app3"
      host  = "app3.localtest.me"
    }
    ```
+   **Mode B:** copy `gitops/app1.yaml` to `gitops/app3.yaml`, swap the name
+   /image/host, push. ArgoCD picks it up.
 
-The Terraform `for_each` and the Helm chart handle the rest — no new
-resources, no copy-pasted module blocks.
+Either way the Helm chart handles the rest — no new resources, no
+copy-pasted module blocks.
 
 ## Chart source: local vs OCI
 
-`terraform/variables.tf` exposes `chart_source`:
+`terraform/variables.tf` exposes `chart_source` for Mode A:
 
 - `local` (default) — Terraform reads `charts/generic-app` from this repo.
   Fast iteration; doesn't depend on CI having run.
@@ -122,14 +181,15 @@ resources, no copy-pasted module blocks.
   `oci://ghcr.io/<owner>/charts`. Truer to a real pipeline; requires you to
   run the workflow at least once first.
 
-Switch by editing `terraform.tfvars` or with `-var chart_source=oci`.
+In Mode B, the ArgoCD Applications default to the git-path source; each
+manifest contains a commented-out OCI variant.
 
 ## Design notes
 
-- **One chart, many apps.** `charts/generic-app` is parameterized
-  (image / replicas / host). The Terraform `module/app` wraps `helm_release`
-  and is instantiated once per app via `for_each`. Adding an app is a map
-  entry, not a new resource block.
+- **One chart, many apps.** `charts/generic-app` is parameterized (image /
+  replicas / host). In Mode A, `module/app` wraps `helm_release` and is
+  instantiated once per app via `for_each`; in Mode B, each ArgoCD
+  Application points at the same chart with different values.
 - **Pod identity via downward API.** `POD_NAME` and `POD_IP` are injected as
   env vars; the app just reads them. No in-cluster API calls.
 - **"Route only to pods capable of responding"** is satisfied by the
@@ -138,14 +198,19 @@ Switch by editing `terraform.tfvars` or with `-var chart_source=oci`.
 - **Ingress on host ports.** The kind config opens 80/443 on the
   control-plane node; ingress-nginx is pinned there with `hostPort` so
   traffic to `localhost:80` reaches the controller directly.
-- **Podinfo uses its upstream chart** — proving the same Terraform shape
-  works whether the chart is ours or a third party's.
+- **Podinfo uses its upstream chart** — proving the same Terraform/ArgoCD
+  shape works whether the chart is ours or a third party's.
+- **metrics-server uses `--kubelet-insecure-tls`** — required for kind
+  because its kubelet serves a self-signed cert. Fine for a local demo;
+  in production you'd use proper kubelet certs.
 
 ## What's intentionally out of scope
 
 - TLS / cert-manager (plain HTTP via `localtest.me`)
 - Remote Terraform state (local file is fine for a kind demo)
-- HPA, PDBs, NetworkPolicies, observability stack
+- HPA, PDBs, NetworkPolicies, full observability stack
+- ArgoCD ApplicationSet (a single root Application + plain Application files
+  is enough for three apps; ApplicationSet would matter at 10+)
 
 ## AI usage disclosure
 
@@ -153,13 +218,16 @@ This project was scaffolded with the help of Claude (Anthropic).
 
 - **Planning prompt:** the task brief above, plus a request for a plan that
   uses kind + GHCR + Helm + Terraform with a CI pipeline runnable via Act.
+  Followed by a request to add a GitOps path and metrics-server.
 - **Decisions I made directly:** Node.js for the app runtime, end-to-end CI
-  via Act, podinfo via its upstream chart, and a `chart_source = local|oci`
-  toggle so the same Terraform works pre- and post-CI.
+  via Act, podinfo via its upstream chart, a `chart_source = local|oci`
+  toggle, and adding an optional GitOps mode alongside the Terraform-direct
+  one rather than replacing it.
 - **What Claude generated:** the Express app, the generic Helm chart,
-  Terraform (root + `module/app`), the GitHub Actions workflow, and this
-  README.
+  Terraform (root + `module/app` + GitOps wiring), the GitHub Actions
+  workflow, the ArgoCD manifests in `gitops/`, and this README.
 - **Review pass:** everything was reviewed before commit. The main edits
   were around the ingress-nginx host-port pinning (so kind's port mappings
-  actually land on the controller) and the chart-source toggle in the
-  module.
+  actually land on the controller), the chart-source toggle in the module,
+  and gating Mode A vs Mode B with `count`/empty-map so both can live in
+  the same Terraform configuration.
