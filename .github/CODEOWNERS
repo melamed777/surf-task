@@ -1,0 +1,4 @@
+# Every path in this repo is owned by @melamed777.
+# Combined with branch protection on main (require review from code owners),
+# this means no PR can merge without an approving review from @melamed777.
+* @melamed777
