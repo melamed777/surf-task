@@ -43,6 +43,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: apps/${{ matrix.app }}
+          # Multi-arch so the image runs on both Apple Silicon (arm64) and
+          # x86 runners / clusters without emulation surprises.
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ steps.meta.outputs.owner }}/${{ matrix.app }}:latest
