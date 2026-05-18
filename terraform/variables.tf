@@ -10,9 +10,9 @@ variable "ghcr_owner" {
 }
 
 variable "image_tag" {
-  description = "Tag for app images published to GHCR"
+  description = "Tag for app images published to GHCR. 'auto' resolves to the current git HEAD SHA at apply time; any other string is used verbatim ('latest', 'v1.2.3', a specific SHA, etc.)."
   type        = string
-  default     = "latest"
+  default     = "auto"
 }
 
 variable "chart_source" {
