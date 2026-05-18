@@ -133,6 +133,21 @@ You'll see three Applications (`app1`, `app2`, `podinfo`) being reconciled.
 Edit a values block in `gitops/app1.yaml`, push — within a minute ArgoCD
 applies it.
 
+## Image tags
+
+CI tags each pushed image twice: `:latest` (moving) and `:<commit-sha>`
+(immutable).
+
+- **Mode A** uses `var.image_tag`. The default `"auto"` resolves to the
+  current `git rev-parse HEAD` at apply time, so each apply pins to the
+  exact image CI produced for that commit. Pass `-var image_tag=latest`
+  or `-var image_tag=<sha>` to override.
+- **Mode B** is image-promotion via PR: when CI publishes images for a
+  commit, it opens a PR that rewrites the `tag:` in
+  `gitops/inhouse-apps.yaml` to that commit's SHA. Merging the PR is
+  what rolls the apps forward via ArgoCD — main is never written to
+  directly by CI.
+
 ## Metrics
 
 `metrics-server` is installed in both modes, so `kubectl top` works:
