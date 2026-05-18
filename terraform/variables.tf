@@ -56,3 +56,21 @@ variable "podinfo_host" {
   type        = string
   default     = "podinfo.localtest.me"
 }
+
+variable "enable_gitops" {
+  description = "If true, install ArgoCD and let it deploy apps from gitops/; if false, Terraform deploys apps directly via the module."
+  type        = bool
+  default     = false
+}
+
+variable "repo_url" {
+  description = "Git URL ArgoCD reads manifests from. Required when enable_gitops = true."
+  type        = string
+  default     = ""
+}
+
+variable "repo_revision" {
+  description = "Branch, tag, or commit ArgoCD tracks."
+  type        = string
+  default     = "main"
+}

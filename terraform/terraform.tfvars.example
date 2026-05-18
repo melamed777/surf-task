@@ -1,4 +1,12 @@
 ghcr_owner    = "your-github-username"
 image_tag     = "latest"
+
+# ----- Mode A: Terraform-direct (default) -----
 chart_source  = "local"   # or "oci" once CI has published the chart
 chart_version = "0.1.0"
+
+# ----- Mode B: GitOps via ArgoCD -----
+# Set enable_gitops = true and provide repo_url to switch modes.
+# enable_gitops = true
+# repo_url      = "https://github.com/your-username/surf-task"
+# repo_revision = "main"

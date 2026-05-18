@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app1
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: apps
+  source:
+    # --- Git-path mode (default): chart lives in this repo ---
+    repoURL: https://github.com/melamed777/surf-task
+    targetRevision: main
+    path: charts/generic-app
+    helm:
+      releaseName: app1
+      values: |
+        image:
+          repository: ghcr.io/melamed777/app1
+          tag: latest
+        ingress:
+          enabled: true
+          className: nginx
+          host: app1.localtest.me
+    # --- OCI mode (alternative): chart from GHCR, published by CI ---
+    # repoURL: ghcr.io/melamed777/charts
+    # chart: generic-app
+    # targetRevision: 0.1.0
+    # helm: ...same as above...
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
