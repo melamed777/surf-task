@@ -1,3 +1,7 @@
+# ---------------------------------------------------------------------------
+# Cluster + providers
+# ---------------------------------------------------------------------------
+
 resource "kind_cluster" "this" {
   name           = var.cluster_name
   wait_for_ready = true
@@ -47,6 +51,10 @@ provider "kubernetes" {
   client_key             = kind_cluster.this.client_key
 }
 
+# ---------------------------------------------------------------------------
+# Cluster-wide add-ons (always installed)
+# ---------------------------------------------------------------------------
+
 resource "helm_release" "ingress_nginx" {
   name             = "ingress-nginx"
   namespace        = "ingress-nginx"
@@ -83,48 +91,28 @@ resource "helm_release" "ingress_nginx" {
   depends_on = [kind_cluster.this]
 }
 
+# metrics-server: powers `kubectl top` and HPA. Kind's kubelet uses a
+# self-signed cert, so we need --kubelet-insecure-tls (fine for local dev).
+resource "helm_release" "metrics_server" {
+  name       = "metrics-server"
+  namespace  = "kube-system"
+  repository = "https://kubernetes-sigs.github.io/metrics-server/"
+  chart      = "metrics-server"
+  version    = "3.12.1"
+
+  values = [yamlencode({
+    args = [
+      "--kubelet-insecure-tls",
+      "--kubelet-preferred-address-types=InternalIP",
+    ]
+  })]
+
+  depends_on = [kind_cluster.this]
+}
+
 resource "kubernetes_namespace" "apps" {
   metadata {
     name = "apps"
   }
   depends_on = [kind_cluster.this]
-}
-
-module "app" {
-  source   = "./modules/app"
-  for_each = var.apps
-
-  release_name     = each.key
-  namespace        = kubernetes_namespace.apps.metadata[0].name
-  image_repo       = "ghcr.io/${var.ghcr_owner}/${each.value.image}"
-  image_tag        = coalesce(each.value.tag, var.image_tag)
-  replicas         = each.value.replicas
-  host             = each.value.host
-  chart_source     = var.chart_source
-  chart_version    = var.chart_version
-  chart_local_path = "${path.module}/../charts/generic-app"
-  chart_oci_repo   = "oci://ghcr.io/${var.ghcr_owner}/charts"
-
-  depends_on = [helm_release.ingress_nginx]
-}
-
-resource "helm_release" "podinfo" {
-  name       = "podinfo"
-  namespace  = kubernetes_namespace.apps.metadata[0].name
-  repository = "oci://ghcr.io/stefanprodan/charts"
-  chart      = "podinfo"
-  version    = "6.7.0"
-
-  values = [yamlencode({
-    ingress = {
-      enabled   = true
-      className = "nginx"
-      hosts = [{
-        host  = var.podinfo_host
-        paths = [{ path = "/", pathType = "ImplementationSpecific" }]
-      }]
-    }
-  })]
-
-  depends_on = [helm_release.ingress_nginx]
 }
