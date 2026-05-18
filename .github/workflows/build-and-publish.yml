@@ -3,6 +3,12 @@ name: build-and-publish
 on:
   push:
     branches: [main]
+    # Only re-run when the actual sources or build inputs change.
+    # Merging a tag-bump PR (which only touches gitops/**) does NOT re-trigger.
+    paths:
+      - 'apps/**'
+      - 'charts/**'
+      - '.github/workflows/build-and-publish.yml'
   workflow_dispatch:
 
 env:
