@@ -105,11 +105,9 @@ syncs everything in `gitops/` from this repo. Adding an app becomes a git
 push, not a `terraform apply`.
 
 1. Push this repo to GitHub (the cluster needs to reach a remote URL).
-2. Rewrite the placeholder in the manifests with your GitHub username:
-   ```bash
-   sed -i '' 's/REPLACE_ME_OWNER/<your-github-username>/g' gitops/*.yaml
-   git add gitops/ && git commit -m 'set repo owner' && git push
-   ```
+2. Rewrite the `melamed777` placeholder in `gitops/inhouse-apps.yaml`
+   (and `terraform/gitops.tf`'s comments if you care) to your own
+   GitHub username, then push.
 3. Enable the mode and point Terraform at the repo:
    ```hcl
    # terraform.tfvars
@@ -165,8 +163,14 @@ This is the "minimal lines for app #3" bonus.
      host  = "app3.localtest.me"
    }
    ```
-   **Mode B:** copy `gitops/app1.yaml` to `gitops/app3.yaml`, swap the name
-   /image/host, push. ArgoCD picks it up.
+   **Mode B:** add one entry to the `elements:` list in
+   `gitops/inhouse-apps.yaml`:
+   ```yaml
+   - name: app3
+     host: app3.localtest.me
+   ```
+   Push. The ApplicationSet generator produces the new Application
+   automatically.
 
 Either way the Helm chart handles the rest — no new resources, no
 copy-pasted module blocks.
@@ -188,8 +192,10 @@ manifest contains a commented-out OCI variant.
 
 - **One chart, many apps.** `charts/generic-app` is parameterized (image /
   replicas / host). In Mode A, `module/app` wraps `helm_release` and is
-  instantiated once per app via `for_each`; in Mode B, each ArgoCD
-  Application points at the same chart with different values.
+  instantiated once per app via `for_each`; in Mode B, an ArgoCD
+  `ApplicationSet` with a list generator produces one Application per
+  in-house app from a single template. Same reusability story, two
+  mechanisms.
 - **Pod identity via downward API.** `POD_NAME` and `POD_IP` are injected as
   env vars; the app just reads them. No in-cluster API calls.
 - **"Route only to pods capable of responding"** is satisfied by the
@@ -209,8 +215,6 @@ manifest contains a commented-out OCI variant.
 - TLS / cert-manager (plain HTTP via `localtest.me`)
 - Remote Terraform state (local file is fine for a kind demo)
 - HPA, PDBs, NetworkPolicies, full observability stack
-- ArgoCD ApplicationSet (a single root Application + plain Application files
-  is enough for three apps; ApplicationSet would matter at 10+)
 
 ## AI usage disclosure
 

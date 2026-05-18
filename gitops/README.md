@@ -1,14 +1,25 @@
 # gitops/
 
-ArgoCD reads this folder when `enable_gitops = true` in Terraform.
+ArgoCD reads this folder when `enable_gitops = true` in Terraform. The root
+Application installed by `terraform/gitops.tf` syncs this directory
+recursively.
 
-Each `*.yaml` here is an ArgoCD `Application`. The root Application installed
-by Terraform (`gitops.tf` -> `kubernetes_manifest.root_app`) syncs this
-directory recursively, so adding a new app = adding a new YAML file here and
-pushing to the branch ArgoCD tracks.
+- `inhouse-apps.yaml` — ApplicationSet covering every in-house app
+  (`app1`, `app2`, ...). They share a chart, an image registry, and an
+  ingress style; the only per-app values are name and host, so a list
+  generator produces them from a 2-line template entry each.
+- `podinfo.yaml` — plain Application for podinfo. It uses a different
+  chart (upstream OCI), repository, and values shape, so it doesn't share
+  the template.
 
-In-house apps use the in-repo `charts/generic-app` chart. Podinfo uses its
-upstream OCI chart.
+**Adding a new in-house app:** add a `- name: ... host: ...` entry to the
+`elements:` list in `inhouse-apps.yaml`. ArgoCD picks it up within ~3
+minutes. Force it sooner with:
 
-To use the OCI form of the generic-app chart instead (published by CI), see
-`app1.yaml` -- swap the `repoURL`/`chart` block for the commented OCI variant.
+```bash
+kubectl -n argocd patch app root --type merge \
+  -p '{"metadata":{"annotations":{"argocd.argoproj.io/refresh":"hard"}}}'
+```
+
+**Switching the chart source** (in-repo vs OCI from CI): see the comment
+block in `inhouse-apps.yaml`.
