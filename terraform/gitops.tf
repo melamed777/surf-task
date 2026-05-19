@@ -10,6 +10,10 @@
 # helm_release is evaluated at apply time and tolerates this.
 # ---------------------------------------------------------------------------
 
+locals {
+  resolved_argocd_host = var.argocd_host != "" ? var.argocd_host : "argocd.${var.host_suffix}"
+}
+
 resource "helm_release" "argocd" {
   count = var.enable_gitops ? 1 : 0
 
@@ -23,7 +27,16 @@ resource "helm_release" "argocd" {
   values = [yamlencode({
     configs = {
       params = {
+        # server.insecure: serve HTTP on the controller's port so ingress-nginx
+        # can forward plain HTTP without TLS termination shenanigans.
         "server.insecure" = true
+      }
+    }
+    server = {
+      ingress = {
+        enabled          = true
+        ingressClassName = "nginx"
+        hostname         = local.resolved_argocd_host
       }
     }
     dex = {

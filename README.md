@@ -30,6 +30,7 @@ Terraform/Helm, or via ArgoCD (GitOps). One `terraform apply` either way.
    http://app1.localtest.me   → {app, podName, podIP}
    http://app2.localtest.me   → {app, podName, podIP}
    http://podinfo.localtest.me
+   http://argocd.localtest.me
 ```
 
 `*.localtest.me` resolves to `127.0.0.1` — no `/etc/hosts` edits needed.
@@ -122,11 +123,10 @@ push, not a `terraform apply`.
 Access the ArgoCD UI:
 
 ```bash
-kubectl port-forward -n argocd svc/argocd-server 8080:80
 kubectl -n argocd get secret argocd-initial-admin-secret \
   -o jsonpath='{.data.password}' | base64 -d ; echo
 # username: admin
-# open http://localhost:8080
+# open http://argocd.localtest.me
 ```
 
 You'll see three Applications (`app1`, `app2`, `podinfo`) being reconciled.

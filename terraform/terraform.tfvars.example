@@ -31,3 +31,4 @@ ghcr_owner = "your-github-username"
 # enable_gitops = true
 # repo_url      = "https://github.com/your-github-username/surf-task"
 # repo_revision = "main"
+# argocd_host   = "argocd.localtest.me"

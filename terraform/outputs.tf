@@ -13,9 +13,9 @@ output "podinfo_url" {
   value       = "http://${local.resolved_podinfo_host}"
 }
 
-output "argocd_port_forward" {
-  description = "Command to access the ArgoCD UI when GitOps mode is enabled"
-  value       = var.enable_gitops ? "kubectl port-forward -n argocd svc/argocd-server 8080:80 (then http://localhost:8080)" : null
+output "argocd_url" {
+  description = "URL for the ArgoCD UI when GitOps mode is enabled"
+  value       = var.enable_gitops ? "http://${local.resolved_argocd_host}" : null
 }
 
 output "argocd_initial_password_cmd" {

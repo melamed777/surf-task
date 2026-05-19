@@ -137,3 +137,9 @@ variable "repo_revision" {
   type        = string
   default     = "main"
 }
+
+variable "argocd_host" {
+  description = "Hostname for the ArgoCD UI ingress. Empty string builds 'argocd.<host_suffix>' (e.g. argocd.localtest.me)."
+  type        = string
+  default     = ""
+}
