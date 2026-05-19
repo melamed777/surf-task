@@ -9,7 +9,7 @@ global:
 inhouse:
   ghcrOwner: ""
   genericChartPath: charts/generic-app
-  imageTag: 99c7e26e7d536fdf7dc063d1a85e07c99b7decd7
+  imageTag: 44d5a242a7616b15765164f8c89c69c1d7901e87
   imagePullPolicy: IfNotPresent
   apps:
     app1:
