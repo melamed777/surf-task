@@ -15,10 +15,10 @@ output "podinfo_url" {
 
 output "argocd_url" {
   description = "URL for the ArgoCD UI when GitOps mode is enabled"
-  value       = var.enable_gitops ? "http://${local.resolved_argocd_host}" : null
+  value       = var.enable_gitops ? module.argocd[0].url : null
 }
 
 output "argocd_initial_password_cmd" {
   description = "Command to fetch the bootstrap admin password for ArgoCD"
-  value       = var.enable_gitops ? "kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d" : null
+  value       = var.enable_gitops ? module.argocd[0].initial_password_cmd : null
 }

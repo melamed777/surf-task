@@ -14,54 +14,19 @@ locals {
   resolved_argocd_host = var.argocd_host != "" ? var.argocd_host : "argocd.${var.host_suffix}"
 }
 
-resource "helm_release" "argocd" {
+module "argocd" {
   count = var.enable_gitops ? 1 : 0
 
-  name             = "argocd"
-  namespace        = "argocd"
-  create_namespace = true
-  repository       = "https://argoproj.github.io/argo-helm"
-  chart            = "argo-cd"
-  version          = var.argocd_version
+  source = "./modules/argocd"
 
-  values = [yamlencode({
-    configs = {
-      params = {
-        # server.insecure: serve HTTP on the controller's port so ingress-nginx
-        # can forward plain HTTP without TLS termination shenanigans.
-        "server.insecure" = true
-      }
-    }
-    server = {
-      ingress = {
-        enabled          = true
-        ingressClassName = "nginx"
-        hostname         = local.resolved_argocd_host
-      }
-    }
-    dex = {
-      enabled = false
-    }
-    notifications = {
-      enabled = false
-    }
-  })]
+  chart_version        = var.argocd_version
+  hostname             = local.resolved_argocd_host
+  repo_url             = var.repo_url
+  target_revision      = var.repo_revision
+  bootstrap_chart_path = "${path.module}/../charts/argocd-bootstrap"
 
-  depends_on = [kind_cluster.this]
-}
-
-resource "helm_release" "argocd_root_app" {
-  count = var.enable_gitops ? 1 : 0
-
-  name      = "argocd-root-app"
-  namespace = "argocd"
-  chart     = "${path.module}/../charts/argocd-bootstrap"
-
-  values = [yamlencode({
-    repoURL        = var.repo_url
-    targetRevision = var.repo_revision
-    path           = "gitops"
-  })]
-
-  depends_on = [helm_release.argocd]
+  depends_on = [
+    kind_cluster.this,
+    helm_release.ingress_nginx,
+  ]
 }
