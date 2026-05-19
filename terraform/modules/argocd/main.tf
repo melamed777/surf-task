@@ -11,7 +11,7 @@ resource "helm_release" "argocd" {
       params = {
         # Serve HTTP on the controller's port so ingress-nginx can forward
         # plain HTTP in local clusters without TLS termination.
-        "server.insecure" = true
+        "server.insecure" = "true"
       }
     }
     server = {
@@ -36,9 +36,11 @@ resource "helm_release" "root_app" {
   chart     = var.bootstrap_chart_path
 
   values = [yamlencode({
-    repoURL        = var.repo_url
-    targetRevision = var.target_revision
-    path           = var.app_path
+    repoURL          = var.repo_url
+    targetRevision   = var.target_revision
+    path             = var.app_path
+    directoryRecurse = var.app_source_type == "directory"
+    helmValues       = var.app_source_type == "helm" && length(keys(var.root_app_values)) > 0 ? yamlencode(var.root_app_values) : ""
   })]
 
   depends_on = [helm_release.argocd]

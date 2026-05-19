@@ -14,6 +14,12 @@ variable "host_suffix" {
   default     = "localtest.me"
 }
 
+variable "ingress_class_name" {
+  description = "IngressClass name used by ingress-nginx and all app ingresses."
+  type        = string
+  default     = "nginx"
+}
+
 # ---------------------------------------------------------------------------
 # Add-on chart versions (pin one place, bump one place)
 # ---------------------------------------------------------------------------
@@ -21,25 +27,25 @@ variable "host_suffix" {
 variable "ingress_nginx_version" {
   description = "Helm chart version of ingress-nginx"
   type        = string
-  default     = "4.10.1"
+  default     = "4.15.1"
 }
 
 variable "metrics_server_version" {
   description = "Helm chart version of metrics-server"
   type        = string
-  default     = "3.12.1"
+  default     = "3.13.0"
 }
 
 variable "argocd_version" {
   description = "Helm chart version of Argo CD"
   type        = string
-  default     = "7.7.0"
+  default     = "9.5.14"
 }
 
 variable "podinfo_version" {
   description = "Helm chart version of podinfo"
   type        = string
-  default     = "6.7.0"
+  default     = "6.11.2"
 }
 
 # ---------------------------------------------------------------------------
@@ -55,6 +61,17 @@ variable "image_tag" {
   description = "Tag for app images published to GHCR. 'auto' resolves to the current git HEAD SHA at apply time; any other string is used verbatim ('latest', 'v1.2.3', a specific SHA, etc.)."
   type        = string
   default     = "auto"
+}
+
+variable "image_pull_policy" {
+  description = "Kubernetes imagePullPolicy for in-house apps. Empty string chooses Always for latest, otherwise IfNotPresent."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = var.image_pull_policy == "" || contains(["Always", "IfNotPresent", "Never"], var.image_pull_policy)
+    error_message = "image_pull_policy must be empty, Always, IfNotPresent, or Never."
+  }
 }
 
 variable "chart_source" {
@@ -136,6 +153,17 @@ variable "repo_revision" {
   description = "Branch, tag, or commit ArgoCD tracks."
   type        = string
   default     = "main"
+}
+
+variable "gitops_source_type" {
+  description = "How the Argo CD root Application reads gitops/. Use 'directory' for the legacy plain-YAML layout and 'helm' after gitops/Chart.yaml is pushed to repo_revision."
+  type        = string
+  default     = "directory"
+
+  validation {
+    condition     = contains(["directory", "helm"], var.gitops_source_type)
+    error_message = "gitops_source_type must be 'directory' or 'helm'."
+  }
 }
 
 variable "argocd_host" {

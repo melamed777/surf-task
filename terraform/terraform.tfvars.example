@@ -4,10 +4,12 @@ ghcr_owner = "your-github-username"
 # Optional --- defaults are fine for a local kind demo ---------------
 # cluster_name  = "surf-task"
 # host_suffix   = "localtest.me"      # any DNS suffix; localtest.me -> 127.0.0.1
+# ingress_class_name = "nginx"
 # apps_namespace = "apps"
 
 # Image tag: "auto" resolves to current git HEAD SHA at apply time.
 # image_tag = "auto"
+# image_pull_policy = "" # auto: Always for latest, otherwise IfNotPresent
 
 # Chart source for in-house apps: "local" (in-repo) or "oci" (GHCR)
 # chart_source  = "local"
@@ -22,13 +24,14 @@ ghcr_owner = "your-github-username"
 # }
 
 # Add-on chart versions (bump in one place)
-# ingress_nginx_version  = "4.10.1"
-# metrics_server_version = "3.12.1"
-# argocd_version         = "7.7.0"
-# podinfo_version        = "6.7.0"
+# ingress_nginx_version  = "4.15.1"
+# metrics_server_version = "3.13.0"
+# argocd_version         = "9.5.14"
+# podinfo_version        = "6.11.2"
 
 # GitOps mode ---------------------------------------------------------
 # enable_gitops = true
 # repo_url      = "https://github.com/your-github-username/surf-task"
 # repo_revision = "main"
+# gitops_source_type = "directory" # switch to "helm" after gitops/Chart.yaml is pushed
 # argocd_host   = "argocd.localtest.me"

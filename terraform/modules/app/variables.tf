@@ -18,6 +18,11 @@ variable "image_tag" {
   description = "Image tag"
 }
 
+variable "image_pull_policy" {
+  type        = string
+  description = "Kubernetes imagePullPolicy"
+}
+
 variable "replicas" {
   type    = number
   default = 2
@@ -26,6 +31,12 @@ variable "replicas" {
 variable "host" {
   type        = string
   description = "Ingress host"
+}
+
+variable "ingress_class_name" {
+  type        = string
+  description = "IngressClass name for the app ingress"
+  default     = "nginx"
 }
 
 variable "chart_source" {

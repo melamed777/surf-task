@@ -25,17 +25,19 @@ module "app" {
   source   = "./modules/app"
   for_each = var.enable_gitops ? {} : var.apps
 
-  release_name     = each.key
-  namespace        = kubernetes_namespace.apps.metadata[0].name
-  image_repo       = "ghcr.io/${var.ghcr_owner}/${each.value.image}"
-  image_tag        = coalesce(each.value.tag, local.resolved_image_tag)
-  replicas         = each.value.replicas
-  host             = local.app_hosts[each.key]
-  extra_values     = each.value.extra_values
-  chart_source     = var.chart_source
-  chart_version    = var.chart_version
-  chart_local_path = "${path.module}/../charts/generic-app"
-  chart_oci_repo   = "oci://ghcr.io/${var.ghcr_owner}/charts"
+  release_name       = each.key
+  namespace          = kubernetes_namespace_v1.apps.metadata[0].name
+  image_repo         = "ghcr.io/${var.ghcr_owner}/${each.value.image}"
+  image_tag          = coalesce(each.value.tag, local.resolved_image_tag)
+  image_pull_policy  = var.image_pull_policy != "" ? var.image_pull_policy : (coalesce(each.value.tag, local.resolved_image_tag) == "latest" ? "Always" : "IfNotPresent")
+  replicas           = each.value.replicas
+  host               = local.app_hosts[each.key]
+  ingress_class_name = var.ingress_class_name
+  extra_values       = each.value.extra_values
+  chart_source       = var.chart_source
+  chart_version      = var.chart_version
+  chart_local_path   = "${path.module}/../charts/generic-app"
+  chart_oci_repo     = "oci://ghcr.io/${var.ghcr_owner}/charts"
 
   depends_on = [helm_release.ingress_nginx]
 }
@@ -44,7 +46,7 @@ resource "helm_release" "podinfo" {
   count = var.enable_gitops ? 0 : 1
 
   name       = "podinfo"
-  namespace  = kubernetes_namespace.apps.metadata[0].name
+  namespace  = kubernetes_namespace_v1.apps.metadata[0].name
   repository = "oci://ghcr.io/stefanprodan/charts"
   chart      = "podinfo"
   version    = var.podinfo_version
@@ -52,7 +54,7 @@ resource "helm_release" "podinfo" {
   values = [yamlencode({
     ingress = {
       enabled   = true
-      className = "nginx"
+      className = var.ingress_class_name
       hosts = [{
         host  = local.resolved_podinfo_host
         paths = [{ path = "/", pathType = "ImplementationSpecific" }]

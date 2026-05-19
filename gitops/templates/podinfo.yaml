@@ -2,24 +2,24 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: podinfo
-  namespace: argocd
+  namespace: {{ .Values.global.argocdNamespace | quote }}
 spec:
   project: default
   destination:
     server: https://kubernetes.default.svc
-    namespace: apps
+    namespace: {{ .Values.global.appsNamespace | quote }}
   source:
     repoURL: ghcr.io/stefanprodan/charts
     chart: podinfo
-    targetRevision: 6.7.0
+    targetRevision: {{ .Values.podinfo.version | quote }}
     helm:
       releaseName: podinfo
       values: |
         ingress:
           enabled: true
-          className: nginx
+          className: {{ .Values.global.ingressClassName | quote }}
           hosts:
-            - host: podinfo.localtest.me
+            - host: {{ default (printf "podinfo.%s" .Values.global.hostSuffix) .Values.podinfo.host | quote }}
               paths:
                 - path: /
                   pathType: ImplementationSpecific

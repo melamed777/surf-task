@@ -36,7 +36,7 @@ resource "kind_cluster" "this" {
 }
 
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = kind_cluster.this.endpoint
     cluster_ca_certificate = kind_cluster.this.cluster_ca_certificate
     client_certificate     = kind_cluster.this.client_certificate
@@ -67,6 +67,8 @@ resource "helm_release" "ingress_nginx" {
   # the kind extraPortMappings on 80/443 reach the controller directly.
   values = [yamlencode({
     controller = {
+      ingressClass         = var.ingress_class_name
+      ingressClassResource = { name = var.ingress_class_name }
       hostPort = {
         enabled = true
         ports   = { http = 80, https = 443 }
@@ -110,7 +112,7 @@ resource "helm_release" "metrics_server" {
   depends_on = [kind_cluster.this]
 }
 
-resource "kubernetes_namespace" "apps" {
+resource "kubernetes_namespace_v1" "apps" {
   metadata {
     name = var.apps_namespace
   }

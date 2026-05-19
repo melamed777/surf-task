@@ -1,0 +1,517 @@
+{
+  "version": 4,
+  "terraform_version": "1.15.3",
+  "serial": 186,
+  "lineage": "2b6d93bf-037d-9d4f-8988-a31f42eccf7d",
+  "outputs": {
+    "app_urls": {
+      "value": {
+        "app1": "http://app1.localtest.me",
+        "app2": "http://app2.localtest.me"
+      },
+      "type": [
+        "object",
+        {
+          "app1": "string",
+          "app2": "string"
+        }
+      ]
+    },
+    "argocd_initial_password_cmd": {
+      "value": "kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d",
+      "type": "string"
+    },
+    "argocd_url": {
+      "value": "http://argocd.localtest.me",
+      "type": "string"
+    },
+    "kubeconfig_path": {
+      "value": "/Users/tomer/Desktop/surf-task/terraform/surf-task-config",
+      "type": "string"
+    },
+    "podinfo_url": {
+      "value": "http://podinfo.localtest.me",
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "helm_release",
+      "name": "ingress_nginx",
+      "provider": "provider[\"registry.terraform.io/hashicorp/helm\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "atomic": false,
+            "chart": "ingress-nginx",
+            "cleanup_on_fail": false,
+            "create_namespace": true,
+            "dependency_update": false,
+            "description": null,
+            "devel": null,
+            "disable_crd_hooks": false,
+            "disable_openapi_validation": false,
+            "disable_webhooks": false,
+            "force_update": false,
+            "id": "ingress-nginx",
+            "keyring": null,
+            "lint": false,
+            "manifest": null,
+            "max_history": 0,
+            "metadata": [
+              {
+                "app_version": "1.10.1",
+                "chart": "ingress-nginx",
+                "first_deployed": 1779199461,
+                "last_deployed": 1779199461,
+                "name": "ingress-nginx",
+                "namespace": "ingress-nginx",
+                "notes": "The ingress-nginx controller has been installed.\nGet the application URL by running these commands:\n  export HTTP_NODE_PORT=$(kubectl get service --namespace ingress-nginx ingress-nginx-controller --output jsonpath=\"{.spec.ports[0].nodePort}\")\n  export HTTPS_NODE_PORT=$(kubectl get service --namespace ingress-nginx ingress-nginx-controller --output jsonpath=\"{.spec.ports[1].nodePort}\")\n  export NODE_IP=\"$(kubectl get nodes --output jsonpath=\"{.items[0].status.addresses[1].address}\")\"\n\n  echo \"Visit http://${NODE_IP}:${HTTP_NODE_PORT} to access your application via HTTP.\"\n  echo \"Visit https://${NODE_IP}:${HTTPS_NODE_PORT} to access your application via HTTPS.\"\n\nAn example Ingress that makes use of the controller:\n  apiVersion: networking.k8s.io/v1\n  kind: Ingress\n  metadata:\n    name: example\n    namespace: foo\n  spec:\n    ingressClassName: nginx\n    rules:\n      - host: www.example.com\n        http:\n          paths:\n            - pathType: Prefix\n              backend:\n                service:\n                  name: exampleService\n                  port:\n                    number: 80\n              path: /\n    # This section is only required if TLS is to be enabled for the Ingress\n    tls:\n      - hosts:\n        - www.example.com\n        secretName: example-tls\n\nIf TLS is enabled for the Ingress, a Secret containing the certificate and key must also be provided:\n\n  apiVersion: v1\n  kind: Secret\n  metadata:\n    name: example-tls\n    namespace: foo\n  data:\n    tls.crt: \u003cbase64 encoded cert\u003e\n    tls.key: \u003cbase64 encoded key\u003e\n  type: kubernetes.io/tls\n",
+                "revision": 1,
+                "values": "{\"controller\":{\"hostPort\":{\"enabled\":true,\"ports\":{\"http\":80,\"https\":443}},\"ingressClass\":\"nginx\",\"ingressClassResource\":{\"name\":\"nginx\"},\"nodeSelector\":{\"ingress-ready\":\"true\"},\"publishService\":{\"enabled\":false},\"service\":{\"type\":\"NodePort\"},\"tolerations\":[{\"effect\":\"NoSchedule\",\"key\":\"node-role.kubernetes.io/control-plane\",\"operator\":\"Equal\"}]}}",
+                "version": "4.10.1"
+              }
+            ],
+            "name": "ingress-nginx",
+            "namespace": "ingress-nginx",
+            "pass_credentials": false,
+            "postrender": [],
+            "recreate_pods": false,
+            "render_subchart_notes": true,
+            "replace": false,
+            "repository": "https://kubernetes.github.io/ingress-nginx",
+            "repository_ca_file": null,
+            "repository_cert_file": null,
+            "repository_key_file": null,
+            "repository_password": null,
+            "repository_username": null,
+            "reset_values": false,
+            "reuse_values": false,
+            "set": [],
+            "set_list": [],
+            "set_sensitive": [],
+            "skip_crds": false,
+            "status": "deployed",
+            "timeout": 300,
+            "upgrade_install": null,
+            "values": [
+              "\"controller\":\n  \"hostPort\":\n    \"enabled\": true\n    \"ports\":\n      \"http\": 80\n      \"https\": 443\n  \"ingressClass\": \"nginx\"\n  \"ingressClassResource\":\n    \"name\": \"nginx\"\n  \"nodeSelector\":\n    \"ingress-ready\": \"true\"\n  \"publishService\":\n    \"enabled\": false\n  \"service\":\n    \"type\": \"NodePort\"\n  \"tolerations\":\n  - \"effect\": \"NoSchedule\"\n    \"key\": \"node-role.kubernetes.io/control-plane\"\n    \"operator\": \"Equal\"\n"
+            ],
+            "verify": false,
+            "version": "4.10.1",
+            "wait": true,
+            "wait_for_jobs": false
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "repository_password"
+              }
+            ]
+          ],
+          "identity_schema_version": 0,
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjEifQ==",
+          "dependencies": [
+            "kind_cluster.this"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "helm_release",
+      "name": "metrics_server",
+      "provider": "provider[\"registry.terraform.io/hashicorp/helm\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "atomic": false,
+            "chart": "metrics-server",
+            "cleanup_on_fail": false,
+            "create_namespace": false,
+            "dependency_update": false,
+            "description": null,
+            "devel": null,
+            "disable_crd_hooks": false,
+            "disable_openapi_validation": false,
+            "disable_webhooks": false,
+            "force_update": false,
+            "id": "metrics-server",
+            "keyring": null,
+            "lint": false,
+            "manifest": null,
+            "max_history": 0,
+            "metadata": [
+              {
+                "app_version": "0.7.1",
+                "chart": "metrics-server",
+                "first_deployed": 1779199461,
+                "last_deployed": 1779199461,
+                "name": "metrics-server",
+                "namespace": "kube-system",
+                "notes": "***********************************************************************\n* Metrics Server                                                      *\n***********************************************************************\n  Chart version: 3.12.1\n  App version:   0.7.1\n  Image tag:     registry.k8s.io/metrics-server/metrics-server:v0.7.1\n***********************************************************************\n",
+                "revision": 1,
+                "values": "{\"args\":[\"--kubelet-insecure-tls\",\"--kubelet-preferred-address-types=InternalIP\"]}",
+                "version": "3.12.1"
+              }
+            ],
+            "name": "metrics-server",
+            "namespace": "kube-system",
+            "pass_credentials": false,
+            "postrender": [],
+            "recreate_pods": false,
+            "render_subchart_notes": true,
+            "replace": false,
+            "repository": "https://kubernetes-sigs.github.io/metrics-server/",
+            "repository_ca_file": null,
+            "repository_cert_file": null,
+            "repository_key_file": null,
+            "repository_password": null,
+            "repository_username": null,
+            "reset_values": false,
+            "reuse_values": false,
+            "set": [],
+            "set_list": [],
+            "set_sensitive": [],
+            "skip_crds": false,
+            "status": "deployed",
+            "timeout": 300,
+            "upgrade_install": null,
+            "values": [
+              "\"args\":\n- \"--kubelet-insecure-tls\"\n- \"--kubelet-preferred-address-types=InternalIP\"\n"
+            ],
+            "verify": false,
+            "version": "3.12.1",
+            "wait": true,
+            "wait_for_jobs": false
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "repository_password"
+              }
+            ]
+          ],
+          "identity_schema_version": 0,
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjEifQ==",
+          "dependencies": [
+            "kind_cluster.this"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "kind_cluster",
+      "name": "this",
+      "provider": "provider[\"registry.terraform.io/tehcyx/kind\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "client_certificate": "-----BEGIN CERTIFICATE-----\nMIIDKTCCAhGgAwIBAgIIIWJc6QyggMYwDQYJKoZIhvcNAQELBQAwFTETMBEGA1UE\nAxMKa3ViZXJuZXRlczAeFw0yNjA1MTkxMzU4NTNaFw0yNzA1MTkxNDAzNTNaMDwx\nHzAdBgNVBAoTFmt1YmVhZG06Y2x1c3Rlci1hZG1pbnMxGTAXBgNVBAMTEGt1YmVy\nbmV0ZXMtYWRtaW4wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDSJv8u\ne3aOSoI1G8D/42oEYmANGJgXWu5a/mJRk74Ep2BgGs0y1gz/LVBJ1uBJIlW8CoMx\n8371VtxeFN+TnLZoQwgrmbjjzVchYteI3NrvdgeHR8/xpRYrrrXbBb9bo7fXDxsE\n4sf0PHAkQz4SF1qwpBfiikZd6ncrV96LeBNbjgyo+sWuvy9ht5Dgo9aj9AurX1PR\nMfa+Ldwsrh+TIX4hARW+dI6trDc/f4HP56/nFHygIr5Su+a9AVZ5PD550eDM3dss\nIcQYKbGI26ADB7y+dJopLEKaXJ3CB1W7iH+ff08VotuZd0VJb0TLrAeOe5Q5eEKF\ncFLkRytDBGIuzXsbAgMBAAGjVjBUMA4GA1UdDwEB/wQEAwIFoDATBgNVHSUEDDAK\nBggrBgEFBQcDAjAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFF9ATc9WTe6Zee3d\nQvYP/vRj/e6iMA0GCSqGSIb3DQEBCwUAA4IBAQC9ZcXXW58P+TI7wsAUrvh1+23p\n8moT8K+c4L6jp0jt/6U7CofTsHp+7lqIkbJ0WGtGt5VKlS9r5hhEVtILY6Ah1mcI\nfjDFdgm/4Cz+KOe9dERDYsnZYPFfIxG/SkdhrIXUniWlSKZ0zNC5TWGuiCT3P/VX\nWmq3TNjj4HTWbRUHYaDtCzNMQpqqDF3Ns14RAbWFou5PDOqbXY9D5dqR9UVXCBHE\nvYgtJC/Djk/tl5dRjrfmvY6AKKZT0g4jyyBL7LagDNUfp+TdUIw7y3d1K5z/1d10\n6LBl55CqVWS89pF4Zm86EPdiDkwAJ6yUErmF8M7WBUMvcafvtztjIDx07BH4\n-----END CERTIFICATE-----\n",
+            "client_key": "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA0ib/Lnt2jkqCNRvA/+NqBGJgDRiYF1ruWv5iUZO+BKdgYBrN\nMtYM/y1QSdbgSSJVvAqDMfN+9VbcXhTfk5y2aEMIK5m4481XIWLXiNza73YHh0fP\n8aUWK6612wW/W6O31w8bBOLH9DxwJEM+EhdasKQX4opGXep3K1fei3gTW44MqPrF\nrr8vYbeQ4KPWo/QLq19T0TH2vi3cLK4fkyF+IQEVvnSOraw3P3+Bz+ev5xR8oCK+\nUrvmvQFWeTw+edHgzN3bLCHEGCmxiNugAwe8vnSaKSxCmlydwgdVu4h/n39PFaLb\nmXdFSW9Ey6wHjnuUOXhChXBS5EcrQwRiLs17GwIDAQABAoIBAFNIsiPFOTBd9ek/\nNQcUJL1VEVTPVOMYndLA8sz6nLkybf7YUE8fxmnQlvuUZTGGomyRy/mdUsi/IjlE\n03AoEKAURKYm1z+sbqXkCqAKStfQsl4aBx5weu9X32lMB1C1etOHgIE4sN6pnxW3\n8l7wE3hip7aXbxikJZMvURp7vUwwMNoRep9Iwi00XBXGGOYhl+S5I/y318s6ZeP0\n46KC/v3UN1g192kj9qbU3yl6v/u/UTAv+anj21UwC3aW/+AHkSYeot1w//U30+Ks\n8wFHdkLGx1lFmE2xL0kClBciyq3kcb9dsAsapRbpSGyvzfhhlsoP43tqdY9F2OWp\nmwg7dPECgYEA3BOVtBa/0eWdUds+tr+XE2FVTPb/2JVR12/Vd0JYTVRTIuc9r0/j\nVLDxNSs4IwNc91hLGsJV4Y4sZyvDeqWWUkkoJY98P2nX1uqmX2JGjT/mT04YiKpW\nU6gkUnheXOHupJ+v8f5VW3ZMpk+jCGCeXg1i50yShwFkNZ1EhThja4sCgYEA9HS1\nBf6wgMlWnCUMMR+/xuPNLNOBPIguN14QDPE+qo39VjIajaoDBWln+2ReFMb7Y4RS\nGTkusCohox6rCzC8ubRFNiVWw+TadxONXlVbZ/XZgHXUsVhCDNSpEeHqcwF3Qle2\n5tGRiYfEpeglD9W+5qSVUaX9OXCa+ax8hWS0YLECgYAzKcpv56oInh0I3rOhwMDa\nnJI8JmAsdepk73btFtt4ftYlEyVgEG6FTe2FstqGKU3/ouMzAWL94ROpmJ8FcGGW\nF7Php433ICAxsrOjETHdvLFKVpmVjCQtprVrBtjJNy1H0GgTFlG5xbLkJzd7xxqK\nOwp3Q3H9OPGXFUzMu+NBKQKBgQDXUg05UJMrfSy6sK9CfdKwX2sT9uC47sK2pjXB\nEKXAGP1ydQOKkJvEoomil09/QZ2glKaz7PhA13t1cMf8PVuevzjPbqg0OFpt1F0L\nIGg49AY27pL/+tuC7bZWOAYIctwXJafHPATTfTEraYVrozxZb9LObkTT2WnITbQI\n0yFGoQKBgQCzkNkZRoUY7iYnMrS7wgRINwwv0HBrf+bEbQgq11gziHlwD3deFQWg\n2qrOT0gSRmKpRXnuKaEcvNjg77DBdkCqmovn/aCeHpmarWuiC9MHpo1P86yh8GLD\nKaH70jR4B6109Jl4eK//nrcXnRJZEdqD+bjFeUgtcC+JyngsPISEfA==\n-----END RSA PRIVATE KEY-----\n",
+            "cluster_ca_certificate": "-----BEGIN CERTIFICATE-----\nMIIDBTCCAe2gAwIBAgIIS34pxCPP1N4wDQYJKoZIhvcNAQELBQAwFTETMBEGA1UE\nAxMKa3ViZXJuZXRlczAeFw0yNjA1MTkxMzU4NTNaFw0zNjA1MTYxNDAzNTNaMBUx\nEzARBgNVBAMTCmt1YmVybmV0ZXMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK\nAoIBAQC924G3+/8jhpG35NvOKvQs1lQAksimQioyMm47nlML59NfN1WwrngATMZ4\nh6NEJxNwcTF23WHvqpuobBH+zIC8zIOLWHwqzj1zXMhsX5NWw5tsa4yicGptdJXU\nL1BRv2NsiazPHPisAtQfpqxu6rlYToYTMl2UabLX8CqqDvlBq07SMoalLaNIdyxO\nKnfB6gthFAK9ZgQg9aYdJiIFm178KujdM1rARIMCCF017akL4dwd9Qd//llw/gJn\ne8DumrxzRewAHJjHyQonS+y90qdjARrraS4zpFbJDP9v/tCbSEW4vlvW0fKKXWhg\niPLXUHKPScAgWg0dGVQHMQ9x//ztAgMBAAGjWTBXMA4GA1UdDwEB/wQEAwICpDAP\nBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBRfQE3PVk3umXnt3UL2D/70Y/3uojAV\nBgNVHREEDjAMggprdWJlcm5ldGVzMA0GCSqGSIb3DQEBCwUAA4IBAQBV3BKx46Pu\nmVP6yNgcsfSc1nsf83poJFAHAGdjlxuASQJ5IMS9e+z+EJpXFKcg1TXhqC4fiDPU\nnP/lECb73N9dqXoHlZX9CfU73XSFSDtE8MeZ2ArDGYR53lHRnZMTGw25B8NGK7zw\nEJ6itbu+VjUUHdIHWiqkf/vTvUTo5qvqpc3EvQBc0AxpjFmooHXAozdKGBW6wLaI\n9BoJJeEl/h5ze9NpDgvodYfzdQDXyKLYjcwWEPg72R0y5t1D+NLZXw99F8w+3gQA\nGMRXLNex/4ibHWYIcmP3kxBdatCsoOfQQrk6zJMv46ezfLInhkuHHaIMpRwqhygs\nAK4AyMW01ZRy\n-----END CERTIFICATE-----\n",
+            "completed": true,
+            "endpoint": "https://127.0.0.1:65425",
+            "id": "surf-task-",
+            "kind_config": [
+              {
+                "api_version": "kind.x-k8s.io/v1alpha4",
+                "containerd_config_patches": null,
+                "feature_gates": null,
+                "kind": "Cluster",
+                "networking": [],
+                "node": [
+                  {
+                    "extra_mounts": [],
+                    "extra_port_mappings": [
+                      {
+                        "container_port": 80,
+                        "host_port": 80,
+                        "listen_address": "",
+                        "protocol": "TCP"
+                      },
+                      {
+                        "container_port": 443,
+                        "host_port": 443,
+                        "listen_address": "",
+                        "protocol": "TCP"
+                      }
+                    ],
+                    "image": "",
+                    "kubeadm_config_patches": [
+                      "kind: InitConfiguration\nnodeRegistration:\n  kubeletExtraArgs:\n    node-labels: \"ingress-ready=true\"\n"
+                    ],
+                    "labels": null,
+                    "role": "control-plane"
+                  },
+                  {
+                    "extra_mounts": [],
+                    "extra_port_mappings": [],
+                    "image": "",
+                    "kubeadm_config_patches": null,
+                    "labels": null,
+                    "role": "worker"
+                  }
+                ],
+                "runtime_config": null
+              }
+            ],
+            "kubeconfig": "apiVersion: v1\nclusters:\n- cluster:\n    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJUzM0cHhDUFAxTjR3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TmpBMU1Ua3hNelU0TlROYUZ3MHpOakExTVRZeE5EQXpOVE5hTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUUM5MjRHMysvOGpocEczNU52T0t2UXMxbFFBa3NpbVFpb3lNbTQ3bmxNTDU5TmZOMVd3cm5nQVRNWjQKaDZORUp4TndjVEYyM1dIdnFwdW9iQkgreklDOHpJT0xXSHdxemoxelhNaHNYNU5XdzV0c2E0eWljR3B0ZEpYVQpMMUJSdjJOc2lhelBIUGlzQXRRZnBxeHU2cmxZVG9ZVE1sMlVhYkxYOENxcUR2bEJxMDdTTW9hbExhTklkeXhPCktuZkI2Z3RoRkFLOVpnUWc5YVlkSmlJRm0xNzhLdWpkTTFyQVJJTUNDRjAxN2FrTDRkd2Q5UWQvL2xsdy9nSm4KZThEdW1yeHpSZXdBSEpqSHlRb25TK3k5MHFkakFScnJhUzR6cEZiSkRQOXYvdENiU0VXNHZsdlcwZktLWFdoZwppUExYVUhLUFNjQWdXZzBkR1ZRSE1ROXgvL3p0QWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJSZlFFM1BWazN1bVhudDNVTDJELzcwWS8zdW9qQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQlYzQkt4NDZQdQptVlA2eU5nY3NmU2MxbnNmODNwb0pGQUhBR2RqbHh1QVNRSjVJTVM5ZSt6K0VKcFhGS2NnMVRYaHFDNGZpRFBVCm5QL2xFQ2I3M045ZHFYb0hsWlg5Q2ZVNzNYU0ZTRHRFOE1lWjJBckRHWVI1M2xIUm5aTVRHdzI1QjhOR0s3encKRUo2aXRidStWalVVSGRJSFdpcWtmL3ZUdlVUbzVxdnFwYzNFdlFCYzBBeHBqRm1vb0hYQW96ZEtHQlc2d0xhSQo5Qm9KSmVFbC9oNXplOU5wRGd2b2RZZnpkUURYeUtMWWpjd1dFUGc3MlIweTV0MUQrTkxaWHc5OUY4dyszZ1FBCkdNUlhMTmV4LzRpYkhXWUljbVAza3hCZGF0Q3NvT2ZRUXJrNnpKTXY0NmV6ZkxJbmhrdUhIYUlNcFJ3cWh5Z3MKQUs0QXlNVzAxWlJ5Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K\n    server: https://127.0.0.1:65425\n  name: kind-surf-task\ncontexts:\n- context:\n    cluster: kind-surf-task\n    user: kind-surf-task\n  name: kind-surf-task\ncurrent-context: kind-surf-task\nkind: Config\nusers:\n- name: kind-surf-task\n  user:\n    client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURLVENDQWhHZ0F3SUJBZ0lJSVdKYzZReWdnTVl3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TmpBMU1Ua3hNelU0TlROYUZ3MHlOekExTVRreE5EQXpOVE5hTUR3eApIekFkQmdOVkJBb1RGbXQxWW1WaFpHMDZZMngxYzNSbGNpMWhaRzFwYm5NeEdUQVhCZ05WQkFNVEVHdDFZbVZ5CmJtVjBaWE10WVdSdGFXNHdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEU0p2OHUKZTNhT1NvSTFHOEQvNDJvRVltQU5HSmdYV3U1YS9tSlJrNzRFcDJCZ0dzMHkxZ3ovTFZCSjF1QkpJbFc4Q29NeAo4MzcxVnR4ZUZOK1RuTFpvUXdncm1iamp6VmNoWXRlSTNOcnZkZ2VIUjgveHBSWXJyclhiQmI5Ym83ZlhEeHNFCjRzZjBQSEFrUXo0U0YxcXdwQmZpaWtaZDZuY3JWOTZMZUJOYmpneW8rc1d1dnk5aHQ1RGdvOWFqOUF1clgxUFIKTWZhK0xkd3NyaCtUSVg0aEFSVytkSTZ0ckRjL2Y0SFA1Ni9uRkh5Z0lyNVN1K2E5QVZaNVBENTUwZURNM2RzcwpJY1FZS2JHSTI2QURCN3krZEpvcExFS2FYSjNDQjFXN2lIK2ZmMDhWb3R1WmQwVkpiMFRMckFlT2U1UTVlRUtGCmNGTGtSeXREQkdJdXpYc2JBZ01CQUFHalZqQlVNQTRHQTFVZER3RUIvd1FFQXdJRm9EQVRCZ05WSFNVRUREQUsKQmdnckJnRUZCUWNEQWpBTUJnTlZIUk1CQWY4RUFqQUFNQjhHQTFVZEl3UVlNQmFBRkY5QVRjOVdUZTZaZWUzZApRdllQL3ZSai9lNmlNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUM5WmNYWFc1OFArVEk3d3NBVXJ2aDErMjNwCjhtb1Q4SytjNEw2anAwanQvNlU3Q29mVHNIcCs3bHFJa2JKMFdHdEd0NVZLbFM5cjVoaEVWdElMWTZBaDFtY0kKZmpERmRnbS80Q3orS09lOWRFUkRZc25aWVBGZkl4Ry9Ta2RocklYVW5pV2xTS1owek5DNVRXR3VpQ1QzUC9WWApXbXEzVE5qajRIVFdiUlVIWWFEdEN6Tk1RcHFxREYzTnMxNFJBYldGb3U1UERPcWJYWTlENWRxUjlVVlhDQkhFCnZZZ3RKQy9EamsvdGw1ZFJqcmZtdlk2QUtLWlQwZzRqeXlCTDdMYWdETlVmcCtUZFVJdzd5M2QxSzV6LzFkMTAKNkxCbDU1Q3FWV1M4OXBGNFptODZFUGRpRGt3QUo2eVVFcm1GOE03V0JVTXZjYWZ2dHp0aklEeDA3Qkg0Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K\n    client-key-data: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBMGliL0xudDJqa3FDTlJ2QS8rTnFCR0pnRFJpWUYxcnVXdjVpVVpPK0JLZGdZQnJOCk10WU0veTFRU2RiZ1NTSlZ2QXFETWZOKzlWYmNYaFRmazV5MmFFTUlLNW00NDgxWElXTFhpTnphNzNZSGgwZlAKOGFVV0s2NjEyd1cvVzZPMzF3OGJCT0xIOUR4d0pFTStFaGRhc0tRWDRvcEdYZXAzSzFmZWkzZ1RXNDRNcVByRgpycjh2WWJlUTRLUFdvL1FMcTE5VDBUSDJ2aTNjTEs0Zmt5RitJUUVWdm5TT3JhdzNQMytCeitldjV4UjhvQ0srClVydm12UUZXZVR3K2VkSGd6TjNiTENIRUdDbXhpTnVnQXdlOHZuU2FLU3hDbWx5ZHdnZFZ1NGgvbjM5UEZhTGIKbVhkRlNXOUV5NndIam51VU9YaENoWEJTNUVjclF3UmlMczE3R3dJREFRQUJBb0lCQUZOSXNpUEZPVEJkOWVrLwpOUWNVSkwxVkVWVFBWT01ZbmRMQThzejZuTGt5YmY3WVVFOGZ4bW5RbHZ1VVpUR0dvbXlSeS9tZFVzaS9JamxFCjAzQW9FS0FVUktZbTF6K3NicVhrQ3FBS1N0ZlFzbDRhQng1d2V1OVgzMmxNQjFDMWV0T0hnSUU0c042cG54VzMKOGw3d0UzaGlwN2FYYnhpa0paTXZVUnA3dlV3d01Ob1JlcDlJd2kwMFhCWEdHT1lobCtTNUkveTMxOHM2WmVQMAo0NktDL3YzVU4xZzE5MmtqOXFiVTN5bDZ2L3UvVVRBdithbmoyMVV3QzNhVy8rQUhrU1llb3Qxdy8vVTMwK0tzCjh3Rkhka0xHeDFsRm1FMnhMMGtDbEJjaXlxM2tjYjlkc0FzYXBSYnBTR3l2emZoaGxzb1A0M3RxZFk5RjJPV3AKbXdnN2RQRUNnWUVBM0JPVnRCYS8wZVdkVWRzK3RyK1hFMkZWVFBiLzJKVlIxMi9WZDBKWVRWUlRJdWM5cjAvagpWTER4TlNzNEl3TmM5MWhMR3NKVjRZNHNaeXZEZXFXV1Vra29KWTk4UDJuWDF1cW1YMkpHalQvbVQwNFlpS3BXClU2Z2tVbmhlWE9IdXBKK3Y4ZjVWVzNaTXBrK2pDR0NlWGcxaTUweVNod0ZrTloxRWhUaGphNHNDZ1lFQTlIUzEKQmY2d2dNbFduQ1VNTVIrL3h1UE5MTk9CUElndU4xNFFEUEUrcW8zOVZqSWFqYW9EQldsbisyUmVGTWI3WTRSUwpHVGt1c0NvaG94NnJDekM4dWJSRk5pVld3K1RhZHhPTlhsVmJaL1haZ0hYVXNWaENETlNwRWVIcWN3RjNRbGUyCjV0R1JpWWZFcGVnbEQ5Vys1cVNWVWFYOU9YQ2ErYXg4aFdTMFlMRUNnWUF6S2NwdjU2b0luaDBJM3JPaHdNRGEKbkpJOEptQXNkZXBrNzNidEZ0dDRmdFlsRXlWZ0VHNkZUZTJGc3RxR0tVMy9vdU16QVdMOTRST3BtSjhGY0dHVwpGN1BocDQzM0lDQXhzck9qRVRIZHZMRktWcG1WakNRdHByVnJCdGpKTnkxSDBHZ1RGbEc1eGJMa0p6ZDd4eHFLCk93cDNRM0g5T1BHWEZVek11K05CS1FLQmdRRFhVZzA1VUpNcmZTeTZzSzlDZmRLd1gyc1Q5dUM0N3NLMnBqWEIKRUtYQUdQMXlkUU9La0p2RW9vbWlsMDkvUVoyZ2xLYXo3UGhBMTN0MWNNZjhQVnVldnpqUGJxZzBPRnB0MUYwTApJR2c0OUFZMjdwTC8rdHVDN2JaV09BWUljdHdYSmFmSFBBVFRmVEVyYVlWcm96eFpiOUxPYmtUVDJXbklUYlFJCjB5RkdvUUtCZ1FDemtOa1pSb1VZN2lZbk1yUzd3Z1JJTnd3djBIQnJmK2JFYlFncTExZ3ppSGx3RDNkZUZRV2cKMnFyT1QwZ1NSbUtwUlhudUthRWN2TmpnNzdEQmRrQ3Ftb3ZuL2FDZUhwbWFyV3VpQzlNSHBvMVA4NnloOEdMRApLYUg3MGpSNEI2MTA5Smw0ZUsvL25yY1huUkpaRWRxRCtiakZlVWd0Y0MrSnluZ3NQSVNFZkE9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=\n",
+            "kubeconfig_path": "/Users/tomer/Desktop/surf-task/terraform/surf-task-config",
+            "name": "surf-task",
+            "node_image": null,
+            "timeouts": null,
+            "wait_for_ready": true
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjMwMDAwMDAwMDAwMH19"
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "kubernetes_namespace",
+      "name": "apps",
+      "provider": "provider[\"registry.terraform.io/hashicorp/kubernetes\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "apps",
+            "metadata": [
+              {
+                "annotations": null,
+                "generate_name": "",
+                "generation": 0,
+                "labels": null,
+                "name": "apps",
+                "resource_version": "532",
+                "uid": "86b6c28b-6d99-4d7b-a037-673947c832c1"
+              }
+            ],
+            "timeouts": null,
+            "wait_for_default_service_account": false
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 1,
+          "identity": {
+            "api_version": "v1",
+            "kind": "Namespace",
+            "name": "apps"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiZGVsZXRlIjozMDAwMDAwMDAwMDB9fQ==",
+          "dependencies": [
+            "kind_cluster.this"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.argocd[0]",
+      "mode": "managed",
+      "type": "helm_release",
+      "name": "argocd",
+      "provider": "provider[\"registry.terraform.io/hashicorp/helm\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "atomic": false,
+            "chart": "argo-cd",
+            "cleanup_on_fail": false,
+            "create_namespace": true,
+            "dependency_update": false,
+            "description": null,
+            "devel": null,
+            "disable_crd_hooks": false,
+            "disable_openapi_validation": false,
+            "disable_webhooks": false,
+            "force_update": false,
+            "id": "argocd",
+            "keyring": null,
+            "lint": false,
+            "manifest": null,
+            "max_history": 0,
+            "metadata": [
+              {
+                "app_version": "v2.13.0",
+                "chart": "argo-cd",
+                "first_deployed": 1779199496,
+                "last_deployed": 1779199496,
+                "name": "argocd",
+                "namespace": "argocd",
+                "notes": "In order to access the server UI you have the following options:\n\n1. kubectl port-forward service/argocd-server -n argocd 8080:443\n\n    and then open the browser on http://localhost:8080 and accept the certificate\n\n2. enable ingress in the values file `server.ingress.enabled` and either\n      - Add the annotation for ssl passthrough: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-1-ssl-passthrough\n      - Set the `configs.params.\"server.insecure\"` in the values file and terminate SSL at your ingress: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-2-multiple-ingress-objects-and-hosts\n\n\nAfter reaching the UI the first time you can login with username: admin and the random password generated during the installation. You can find the password by running:\n\nkubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath=\"{.data.password}\" | base64 -d\n\n(You should delete the initial secret afterwards as suggested by the Getting Started Guide: https://argo-cd.readthedocs.io/en/stable/getting_started/#4-login-using-the-cli)\n",
+                "revision": 1,
+                "values": "{\"configs\":{\"params\":{\"server.insecure\":true}},\"dex\":{\"enabled\":false},\"notifications\":{\"enabled\":false},\"server\":{\"ingress\":{\"enabled\":true,\"hostname\":\"argocd.localtest.me\",\"ingressClassName\":\"nginx\"}}}",
+                "version": "7.7.0"
+              }
+            ],
+            "name": "argocd",
+            "namespace": "argocd",
+            "pass_credentials": false,
+            "postrender": [],
+            "recreate_pods": false,
+            "render_subchart_notes": true,
+            "replace": false,
+            "repository": "https://argoproj.github.io/argo-helm",
+            "repository_ca_file": null,
+            "repository_cert_file": null,
+            "repository_key_file": null,
+            "repository_password": null,
+            "repository_username": null,
+            "reset_values": false,
+            "reuse_values": false,
+            "set": [],
+            "set_list": [],
+            "set_sensitive": [],
+            "skip_crds": false,
+            "status": "deployed",
+            "timeout": 300,
+            "upgrade_install": null,
+            "values": [
+              "\"configs\":\n  \"params\":\n    \"server.insecure\": true\n\"dex\":\n  \"enabled\": false\n\"notifications\":\n  \"enabled\": false\n\"server\":\n  \"ingress\":\n    \"enabled\": true\n    \"hostname\": \"argocd.localtest.me\"\n    \"ingressClassName\": \"nginx\"\n"
+            ],
+            "verify": false,
+            "version": "7.7.0",
+            "wait": true,
+            "wait_for_jobs": false
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "repository_password"
+              }
+            ]
+          ],
+          "identity_schema_version": 0,
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjEifQ==",
+          "dependencies": [
+            "helm_release.ingress_nginx",
+            "kind_cluster.this"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.argocd[0]",
+      "mode": "managed",
+      "type": "helm_release",
+      "name": "root_app",
+      "provider": "provider[\"registry.terraform.io/hashicorp/helm\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "atomic": false,
+            "chart": "./../charts/argocd-bootstrap",
+            "cleanup_on_fail": false,
+            "create_namespace": false,
+            "dependency_update": false,
+            "description": null,
+            "devel": null,
+            "disable_crd_hooks": false,
+            "disable_openapi_validation": false,
+            "disable_webhooks": false,
+            "force_update": false,
+            "id": "argocd-root-app",
+            "keyring": null,
+            "lint": false,
+            "manifest": null,
+            "max_history": 0,
+            "metadata": [
+              {
+                "app_version": "1.0.0",
+                "chart": "argocd-bootstrap",
+                "first_deployed": 1779199521,
+                "last_deployed": 1779199521,
+                "name": "argocd-root-app",
+                "namespace": "argocd",
+                "notes": "",
+                "revision": 1,
+                "values": "{\"directoryRecurse\":false,\"helmValues\":\"\\\"apps\\\":\\n  \\\"app1\\\":\\n    \\\"host\\\": \\\"\\\"\\n    \\\"image\\\": \\\"app1\\\"\\n  \\\"app2\\\":\\n    \\\"host\\\": \\\"\\\"\\n    \\\"image\\\": \\\"app2\\\"\\n\\\"appsNamespace\\\": \\\"apps\\\"\\n\\\"argocdNamespace\\\": \\\"argocd\\\"\\n\\\"ghcrOwner\\\": \\\"melamed777\\\"\\n\\\"hostSuffix\\\": \\\"localtest.me\\\"\\n\\\"imagePullPolicy\\\": \\\"Always\\\"\\n\\\"ingressClassName\\\": \\\"nginx\\\"\\n\\\"podinfoHost\\\": \\\"podinfo.localtest.me\\\"\\n\\\"podinfoVersion\\\": \\\"6.7.0\\\"\\n\\\"repoURL\\\": \\\"https://github.com/melamed777/surf-task\\\"\\n\\\"targetRevision\\\": \\\"main\\\"\\n\",\"path\":\"gitops\",\"repoURL\":\"https://github.com/melamed777/surf-task\",\"targetRevision\":\"main\"}",
+                "version": "0.1.0"
+              }
+            ],
+            "name": "argocd-root-app",
+            "namespace": "argocd",
+            "pass_credentials": false,
+            "postrender": [],
+            "recreate_pods": false,
+            "render_subchart_notes": true,
+            "replace": false,
+            "repository": null,
+            "repository_ca_file": null,
+            "repository_cert_file": null,
+            "repository_key_file": null,
+            "repository_password": null,
+            "repository_username": null,
+            "reset_values": false,
+            "reuse_values": false,
+            "set": [],
+            "set_list": [],
+            "set_sensitive": [],
+            "skip_crds": false,
+            "status": "deployed",
+            "timeout": 300,
+            "upgrade_install": null,
+            "values": [
+              "\"directoryRecurse\": false\n\"helmValues\": |\n  \"apps\":\n    \"app1\":\n      \"host\": \"\"\n      \"image\": \"app1\"\n    \"app2\":\n      \"host\": \"\"\n      \"image\": \"app2\"\n  \"appsNamespace\": \"apps\"\n  \"argocdNamespace\": \"argocd\"\n  \"ghcrOwner\": \"melamed777\"\n  \"hostSuffix\": \"localtest.me\"\n  \"imagePullPolicy\": \"Always\"\n  \"ingressClassName\": \"nginx\"\n  \"podinfoHost\": \"podinfo.localtest.me\"\n  \"podinfoVersion\": \"6.7.0\"\n  \"repoURL\": \"https://github.com/melamed777/surf-task\"\n  \"targetRevision\": \"main\"\n\"path\": \"gitops\"\n\"repoURL\": \"https://github.com/melamed777/surf-task\"\n\"targetRevision\": \"main\"\n"
+            ],
+            "verify": false,
+            "version": "0.1.0",
+            "wait": true,
+            "wait_for_jobs": false
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "repository_password"
+              }
+            ]
+          ],
+          "identity_schema_version": 0,
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjEifQ==",
+          "dependencies": [
+            "helm_release.ingress_nginx",
+            "kind_cluster.this",
+            "module.argocd.helm_release.argocd"
+          ]
+        }
+      ]
+    }
+  ],
+  "check_results": [
+    {
+      "object_kind": "var",
+      "config_addr": "var.image_pull_policy",
+      "status": "pass",
+      "objects": [
+        {
+          "object_addr": "var.image_pull_policy",
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "object_kind": "var",
+      "config_addr": "var.chart_source",
+      "status": "pass",
+      "objects": [
+        {
+          "object_addr": "var.chart_source",
+          "status": "pass"
+        }
+      ]
+    }
+  ]
+}

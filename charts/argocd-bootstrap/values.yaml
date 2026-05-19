@@ -2,3 +2,5 @@ argocdNamespace: argocd
 repoURL: ""
 targetRevision: main
 path: gitops
+directoryRecurse: true
+helmValues: ""

@@ -2,7 +2,7 @@ terraform {
   required_providers {
     helm = {
       source  = "hashicorp/helm"
-      version = "~> 2.13"
+      version = "~> 3.1"
     }
   }
 }
@@ -15,10 +15,11 @@ locals {
     image = {
       repository = var.image_repo
       tag        = var.image_tag
+      pullPolicy = var.image_pull_policy
     }
     ingress = {
       enabled   = true
-      className = "nginx"
+      className = var.ingress_class_name
       host      = var.host
     }
   }

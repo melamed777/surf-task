@@ -12,6 +12,12 @@
 
 locals {
   resolved_argocd_host = var.argocd_host != "" ? var.argocd_host : "argocd.${var.host_suffix}"
+  gitops_apps = {
+    for name, app in var.apps : name => {
+      image = app.image
+      host  = app.host != null ? app.host : ""
+    }
+  }
 }
 
 module "argocd" {
@@ -21,9 +27,30 @@ module "argocd" {
 
   chart_version        = var.argocd_version
   hostname             = local.resolved_argocd_host
+  ingress_class_name   = var.ingress_class_name
   repo_url             = var.repo_url
   target_revision      = var.repo_revision
+  app_source_type      = var.gitops_source_type
   bootstrap_chart_path = "${path.module}/../charts/argocd-bootstrap"
+  root_app_values = {
+    global = {
+      argocdNamespace  = "argocd"
+      appsNamespace    = var.apps_namespace
+      repoURL          = var.repo_url
+      targetRevision   = var.repo_revision
+      hostSuffix       = var.host_suffix
+      ingressClassName = var.ingress_class_name
+    }
+    inhouse = {
+      ghcrOwner       = var.ghcr_owner
+      imagePullPolicy = var.image_pull_policy != "" ? var.image_pull_policy : "Always"
+      apps            = local.gitops_apps
+    }
+    podinfo = {
+      version = var.podinfo_version
+      host    = local.resolved_podinfo_host
+    }
+  }
 
   depends_on = [
     kind_cluster.this,

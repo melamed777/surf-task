@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: inhouse-apps
+  namespace: {{ .Values.global.argocdNamespace | quote }}
+spec:
+  generators:
+    - list:
+        elements:
+          {{- range $name := keys .Values.inhouse.apps | sortAlpha }}
+          {{- $app := index $.Values.inhouse.apps $name }}
+          - name: {{ $name | quote }}
+            image: {{ default $name $app.image | quote }}
+            host: {{ default (printf "%s.%s" $name $.Values.global.hostSuffix) $app.host | quote }}
+          {{- end }}
+  template:
+    metadata:
+      name: '{{ "{{name}}" }}'
+      namespace: {{ .Values.global.argocdNamespace | quote }}
+    spec:
+      project: default
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: {{ .Values.global.appsNamespace | quote }}
+      source:
+        repoURL: {{ .Values.global.repoURL | quote }}
+        targetRevision: {{ .Values.global.targetRevision | quote }}
+        path: {{ .Values.inhouse.genericChartPath | quote }}
+        helm:
+          releaseName: '{{ "{{name}}" }}'
+          values: |
+            image:
+              repository: "ghcr.io/{{ .Values.inhouse.ghcrOwner }}/{{ "{{image}}" }}"
+              tag: {{ .Values.inhouse.imageTag | quote }}
+              pullPolicy: {{ .Values.inhouse.imagePullPolicy | quote }}
+            ingress:
+              enabled: true
+              className: {{ .Values.global.ingressClassName | quote }}
+              host: "{{ "{{host}}" }}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

@@ -1,0 +1,22 @@
+global:
+  argocdNamespace: argocd
+  appsNamespace: apps
+  repoURL: ""
+  targetRevision: main
+  hostSuffix: localtest.me
+  ingressClassName: nginx
+
+inhouse:
+  ghcrOwner: ""
+  genericChartPath: charts/generic-app
+  imageTag: 99c7e26e7d536fdf7dc063d1a85e07c99b7decd7
+  imagePullPolicy: IfNotPresent
+  apps:
+    app1:
+      image: app1
+    app2:
+      image: app2
+
+podinfo:
+  version: 6.11.2
+  host: ""

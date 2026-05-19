@@ -102,20 +102,17 @@ Service) — you can watch `podName` change.
 ## Deploy — Mode B: GitOps via ArgoCD
 
 Terraform installs the cluster, the controllers, and ArgoCD; ArgoCD then
-syncs everything in `gitops/` from this repo. Adding an app becomes a git
-push, not a `terraform apply`.
+syncs everything in `gitops/` from this repo. The app inventory is still
+declared once in Terraform, while image promotion happens through GitOps PRs.
 
 1. Push this repo to GitHub (the cluster needs to reach a remote URL).
-2. If you forked: replace `melamed777` in `gitops/inhouse-apps.yaml`
-   with your GitHub username (find-replace, three occurrences), then
-   commit and push.
-3. Enable the mode and point Terraform at the repo:
+2. Enable the mode and point Terraform at the repo:
    ```hcl
    # terraform.tfvars
    enable_gitops = true
    repo_url      = "https://github.com/<your-github-username>/surf-task"
    ```
-4. ```bash
+3. ```bash
    cd terraform
    terraform apply
    ```
@@ -130,8 +127,14 @@ kubectl -n argocd get secret argocd-initial-admin-secret \
 ```
 
 You'll see three Applications (`app1`, `app2`, `podinfo`) being reconciled.
-Edit a values block in `gitops/app1.yaml`, push — within a minute ArgoCD
-applies it.
+When CI opens and you merge a GitOps tag-bump PR, ArgoCD applies it within a
+minute or so.
+
+The default root Application mode is `gitops_source_type = "directory"` so it
+can sync the legacy plain-YAML `gitops/` folder already on `main`. After the
+Helm-based `gitops/Chart.yaml` change is pushed to the branch ArgoCD tracks,
+set `gitops_source_type = "helm"` to let Terraform inject repo, owner, host,
+namespace, and app inventory values into the GitOps chart.
 
 ## Image tags
 
@@ -143,8 +146,8 @@ CI tags each pushed image twice: `:latest` (moving) and `:<commit-sha>`
   exact image CI produced for that commit. Pass `-var image_tag=latest`
   or `-var image_tag=<sha>` to override.
 - **Mode B** is image-promotion via PR: when CI publishes images for a
-  commit, it opens a PR that rewrites the `tag:` in
-  `gitops/inhouse-apps.yaml` to that commit's SHA. Merging the PR is
+  commit, it opens a PR that rewrites `imageTag` in `gitops/values.yaml`
+  to that commit's SHA. Merging the PR is
   what rolls the apps forward via ArgoCD — main is never written to
   directly by CI.
 
@@ -178,14 +181,9 @@ This is the "minimal lines for app #3" bonus.
      host  = "app3.localtest.me"
    }
    ```
-   **Mode B:** add one entry to the `elements:` list in
-   `gitops/inhouse-apps.yaml`:
-   ```yaml
-   - name: app3
-     host: app3.localtest.me
-   ```
-   Push. The ApplicationSet generator produces the new Application
-   automatically.
+   In GitOps mode, Terraform passes the same `var.apps` inventory into the
+   ArgoCD root app, so the ApplicationSet generator produces the new
+   Application automatically after apply.
 
 Either way the Helm chart handles the rest — no new resources, no
 copy-pasted module blocks.
