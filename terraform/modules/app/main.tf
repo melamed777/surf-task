@@ -9,6 +9,23 @@ terraform {
 
 locals {
   use_oci = var.chart_source == "oci"
+
+  base_values = {
+    replicaCount = var.replicas
+    image = {
+      repository = var.image_repo
+      tag        = var.image_tag
+    }
+    ingress = {
+      enabled   = true
+      className = "nginx"
+      host      = var.host
+    }
+  }
+
+  # extra_values is passed as a SECOND values document so Helm performs the
+  # merge (later wins per Helm semantics). Cleaner than trying to deep-merge
+  # in HCL.
 }
 
 resource "helm_release" "this" {
@@ -21,16 +38,8 @@ resource "helm_release" "this" {
   repository = local.use_oci ? var.chart_oci_repo : null
   version    = local.use_oci ? var.chart_version : null
 
-  values = [yamlencode({
-    replicaCount = var.replicas
-    image = {
-      repository = var.image_repo
-      tag        = var.image_tag
-    }
-    ingress = {
-      enabled   = true
-      className = "nginx"
-      host      = var.host
-    }
-  })]
+  values = concat(
+    [yamlencode(local.base_values)],
+    length(keys(var.extra_values)) > 0 ? [yamlencode(var.extra_values)] : [],
+  )
 }

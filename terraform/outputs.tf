@@ -5,12 +5,12 @@ output "kubeconfig_path" {
 
 output "app_urls" {
   description = "URLs for each deployed in-house app"
-  value       = { for k, v in var.apps : k => "http://${v.host}" }
+  value       = { for k, _ in var.apps : k => "http://${local.app_hosts[k]}" }
 }
 
 output "podinfo_url" {
   description = "URL for podinfo"
-  value       = "http://${var.podinfo_host}"
+  value       = "http://${local.resolved_podinfo_host}"
 }
 
 output "argocd_port_forward" {

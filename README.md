@@ -105,9 +105,9 @@ syncs everything in `gitops/` from this repo. Adding an app becomes a git
 push, not a `terraform apply`.
 
 1. Push this repo to GitHub (the cluster needs to reach a remote URL).
-2. Rewrite the `melamed777` placeholder in `gitops/inhouse-apps.yaml`
-   (and `terraform/gitops.tf`'s comments if you care) to your own
-   GitHub username, then push.
+2. If you forked: replace `melamed777` in `gitops/inhouse-apps.yaml`
+   with your GitHub username (find-replace, three occurrences), then
+   commit and push.
 3. Enable the mode and point Terraform at the repo:
    ```hcl
    # terraform.tfvars

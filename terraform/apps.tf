@@ -14,7 +14,11 @@ data "external" "git_sha" {
 }
 
 locals {
-  resolved_image_tag = var.image_tag == "auto" ? data.external.git_sha[0].result.sha : var.image_tag
+  resolved_image_tag    = var.image_tag == "auto" ? data.external.git_sha[0].result.sha : var.image_tag
+  resolved_podinfo_host = var.podinfo_host != "" ? var.podinfo_host : "podinfo.${var.host_suffix}"
+
+  # Compute per-app hostnames: per-app override wins, else "<key>.<host_suffix>".
+  app_hosts = { for k, v in var.apps : k => coalesce(v.host, "${k}.${var.host_suffix}") }
 }
 
 module "app" {
@@ -26,7 +30,8 @@ module "app" {
   image_repo       = "ghcr.io/${var.ghcr_owner}/${each.value.image}"
   image_tag        = coalesce(each.value.tag, local.resolved_image_tag)
   replicas         = each.value.replicas
-  host             = each.value.host
+  host             = local.app_hosts[each.key]
+  extra_values     = each.value.extra_values
   chart_source     = var.chart_source
   chart_version    = var.chart_version
   chart_local_path = "${path.module}/../charts/generic-app"
@@ -42,14 +47,14 @@ resource "helm_release" "podinfo" {
   namespace  = kubernetes_namespace.apps.metadata[0].name
   repository = "oci://ghcr.io/stefanprodan/charts"
   chart      = "podinfo"
-  version    = "6.7.0"
+  version    = var.podinfo_version
 
   values = [yamlencode({
     ingress = {
       enabled   = true
       className = "nginx"
       hosts = [{
-        host  = var.podinfo_host
+        host  = local.resolved_podinfo_host
         paths = [{ path = "/", pathType = "ImplementationSpecific" }]
       }]
     }

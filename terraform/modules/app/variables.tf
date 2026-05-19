@@ -47,3 +47,9 @@ variable "chart_oci_repo" {
   type        = string
   description = "OCI repository URL (e.g. oci://ghcr.io/owner/charts) when chart_source = 'oci'"
 }
+
+variable "extra_values" {
+  type        = any
+  default     = {}
+  description = "Raw map merged into the Helm values for this release. Last-write-wins against module-managed keys; use for one-off overrides that don't deserve a top-level field."
+}

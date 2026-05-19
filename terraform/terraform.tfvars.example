@@ -1,13 +1,33 @@
-ghcr_owner    = "your-github-username"
-# image_tag = "auto"  # default: resolves to current git HEAD SHA
-# image_tag = "latest"  # if you'd rather track the moving tag
+# Required ------------------------------------------------------------
+ghcr_owner = "your-github-username"
 
-# ----- Mode A: Terraform-direct (default) -----
-chart_source  = "local"   # or "oci" once CI has published the chart
-chart_version = "0.1.0"
+# Optional --- defaults are fine for a local kind demo ---------------
+# cluster_name  = "surf-task"
+# host_suffix   = "localtest.me"      # any DNS suffix; localtest.me -> 127.0.0.1
+# apps_namespace = "apps"
 
-# ----- Mode B: GitOps via ArgoCD -----
-# Set enable_gitops = true and provide repo_url to switch modes.
+# Image tag: "auto" resolves to current git HEAD SHA at apply time.
+# image_tag = "auto"
+
+# Chart source for in-house apps: "local" (in-repo) or "oci" (GHCR)
+# chart_source  = "local"
+# chart_version = "0.1.0"
+
+# Per-app overrides. Each app can opt into a custom host, replica count,
+# image tag, or arbitrary chart values via extra_values.
+# apps = {
+#   app1 = { image = "app1" }
+#   app2 = { image = "app2", replicas = 3 }
+#   app3 = { image = "app3", extra_values = { env = [{ name = "FOO", value = "bar" }] } }
+# }
+
+# Add-on chart versions (bump in one place)
+# ingress_nginx_version  = "4.10.1"
+# metrics_server_version = "3.12.1"
+# argocd_version         = "7.7.0"
+# podinfo_version        = "6.7.0"
+
+# GitOps mode ---------------------------------------------------------
 # enable_gitops = true
-# repo_url      = "https://github.com/your-username/surf-task"
+# repo_url      = "https://github.com/your-github-username/surf-task"
 # repo_revision = "main"

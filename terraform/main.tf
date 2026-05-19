@@ -61,7 +61,7 @@ resource "helm_release" "ingress_nginx" {
   create_namespace = true
   repository       = "https://kubernetes.github.io/ingress-nginx"
   chart            = "ingress-nginx"
-  version          = "4.10.1"
+  version          = var.ingress_nginx_version
 
   # Pin the controller onto the labeled control-plane node and use hostPort so
   # the kind extraPortMappings on 80/443 reach the controller directly.
@@ -98,7 +98,7 @@ resource "helm_release" "metrics_server" {
   namespace  = "kube-system"
   repository = "https://kubernetes-sigs.github.io/metrics-server/"
   chart      = "metrics-server"
-  version    = "3.12.1"
+  version    = var.metrics_server_version
 
   values = [yamlencode({
     args = [
@@ -112,7 +112,7 @@ resource "helm_release" "metrics_server" {
 
 resource "kubernetes_namespace" "apps" {
   metadata {
-    name = "apps"
+    name = var.apps_namespace
   }
   depends_on = [kind_cluster.this]
 }
