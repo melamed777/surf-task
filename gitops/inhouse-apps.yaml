@@ -21,7 +21,7 @@ spec:
             app:  app2
             host: app2.localtest.me
           - name: app3
-            app:  app1
+            app:  app2
             host: app3.localtest.me
   template:
     metadata:
