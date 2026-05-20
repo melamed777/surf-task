@@ -1,0 +1,51 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: inhouse-apps
+  namespace: argocd
+spec:
+  # Per-element fields:
+  #   name  -- identity (Argo CD Application name, Helm release name, label
+  #            used for the host prefix by default).
+  #   app   -- which container image to run. Decoupled from `name` so you
+  #            can spin up another instance of an existing app without
+  #            building a new image.
+  #   host  -- ingress hostname.
+  generators:
+    - list:
+        elements:
+          - name: app1
+            app:  app1
+            host: app1.localtest.me
+          - name: app2
+            app:  app2
+            host: app2.localtest.me
+  template:
+    metadata:
+      name: '{{name}}'
+      namespace: argocd
+    spec:
+      project: default
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: apps
+      source:
+        repoURL: https://github.com/melamed777/surf-task
+        targetRevision: main
+        path: charts/generic-app
+        helm:
+          releaseName: '{{name}}'
+          values: |
+            image:
+              repository: ghcr.io/melamed777/{{app}}
+              tag: latest
+            ingress:
+              enabled: true
+              className: nginx
+              host: {{host}}
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

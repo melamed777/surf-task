@@ -1,29 +1,42 @@
 # gitops/
 
 ArgoCD reads this folder when `enable_gitops = true` in Terraform. The root
-Application installed by `terraform/gitops.tf` renders this folder as a Helm
-chart, so cluster-specific values such as repo URL, GHCR owner, host suffix,
-namespace, and app list can come from Terraform instead of being hardcoded
-in manifests.
+Application installed by `terraform/gitops.tf` syncs this directory
+recursively, so each `*.yaml` here becomes an ArgoCD object.
 
-- `templates/inhouse-apps.yaml` — ApplicationSet covering every in-house app
-  (`app1`, `app2`, ...). They share a chart, an image registry, and an
-  ingress style.
-- `templates/podinfo.yaml` — plain Application for podinfo. It uses a different
-  chart (upstream OCI), repository, and values shape.
-- `values.yaml` — GitOps-owned values split into `global`, `inhouse`, and
-  `podinfo` sections. CI updates `inhouse.imageTag` here by PR after publishing
-  images, so merging that PR rolls app1/app2 forward via ArgoCD.
+- `inhouse-apps.yaml` — ApplicationSet covering every in-house app
+  (`app1`, `app2`, ...). They share a chart (`charts/generic-app`), an image
+  registry, and an ingress style. Each list element has three fields:
+  - `name` — identity (Application name, Helm release name, host prefix).
+  - `app`  — which container image to run. Decoupled from `name`, so you
+    can spin up another instance of an existing app without building a new
+    image (e.g. `name: app3, app: app1`).
+  - `host` — ingress hostname.
+- `podinfo.yaml` — plain Application for podinfo (different chart, repo,
+  values shape).
 
-**Adding a new in-house app:** add it to `var.apps` in Terraform so both
-Terraform-direct mode and GitOps mode get the same app inventory. ArgoCD picks
-it up within ~3 minutes after apply. Force it sooner with:
+**Adding a new instance of an existing app:** one entry, no CI changes.
+```yaml
+- name: app3
+  app:  app1
+  host: app3.localtest.me
+```
+
+**Adding a genuinely new app** (new binary): build a new image (`apps/app3/`
++ add to the CI matrix in `.github/workflows/build-and-publish.yml`), then
+add an element with `app: app3`.
+
+Push the change. ArgoCD picks it up within ~3 minutes. Force it sooner
+with:
 
 ```bash
 kubectl -n argocd patch app root --type merge \
   -p '{"metadata":{"annotations":{"argocd.argoproj.io/refresh":"hard"}}}'
 ```
 
-**Switching the chart source** can be added in `templates/inhouse-apps.yaml`
-by changing the ApplicationSet source from `path: charts/generic-app` to the
-published OCI chart.
+**Image promotion:** CI's `bump-gitops-tag` job rewrites the `tag:` line in
+this file and opens a PR. Merging the PR rolls the apps forward via ArgoCD;
+`main` is never written to directly by CI.
+
+**Fork note:** if you fork this repo, replace `melamed777` in
+`inhouse-apps.yaml` (three occurrences) with your GitHub username.

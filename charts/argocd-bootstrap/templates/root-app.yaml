@@ -9,14 +9,8 @@ spec:
     repoURL: {{ .Values.repoURL | quote }}
     targetRevision: {{ .Values.targetRevision | quote }}
     path: {{ .Values.path | quote }}
-    {{- if .Values.helmValues }}
-    helm:
-      values: |
-{{- .Values.helmValues | nindent 8 }}
-    {{- else if .Values.directoryRecurse }}
     directory:
       recurse: true
-    {{- end }}
   destination:
     server: https://kubernetes.default.svc
     namespace: {{ .Values.argocdNamespace }}

@@ -36,11 +36,9 @@ resource "helm_release" "root_app" {
   chart     = var.bootstrap_chart_path
 
   values = [yamlencode({
-    repoURL          = var.repo_url
-    targetRevision   = var.target_revision
-    path             = var.app_path
-    directoryRecurse = var.app_source_type == "directory"
-    helmValues       = var.app_source_type == "helm" && length(keys(var.root_app_values)) > 0 ? yamlencode(var.root_app_values) : ""
+    repoURL        = var.repo_url
+    targetRevision = var.target_revision
+    path           = var.app_path
   })]
 
   depends_on = [helm_release.argocd]

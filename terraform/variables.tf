@@ -155,17 +155,6 @@ variable "repo_revision" {
   default     = "main"
 }
 
-variable "gitops_source_type" {
-  description = "How the Argo CD root Application reads gitops/. Use 'directory' for the legacy plain-YAML layout and 'helm' after gitops/Chart.yaml is pushed to repo_revision."
-  type        = string
-  default     = "directory"
-
-  validation {
-    condition     = contains(["directory", "helm"], var.gitops_source_type)
-    error_message = "gitops_source_type must be 'directory' or 'helm'."
-  }
-}
-
 variable "argocd_host" {
   description = "Hostname for the ArgoCD UI ingress. Empty string builds 'argocd.<host_suffix>' (e.g. argocd.localtest.me)."
   type        = string

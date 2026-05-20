@@ -36,23 +36,6 @@ variable "app_path" {
   default     = "gitops"
 }
 
-variable "app_source_type" {
-  description = "How the root Argo CD Application reads app_path: 'directory' or 'helm'."
-  type        = string
-  default     = "directory"
-
-  validation {
-    condition     = contains(["directory", "helm"], var.app_source_type)
-    error_message = "app_source_type must be 'directory' or 'helm'."
-  }
-}
-
-variable "root_app_values" {
-  description = "Helm values passed to the root Argo CD Application source."
-  type        = any
-  default     = {}
-}
-
 variable "bootstrap_chart_path" {
   description = "Local path to the chart that creates the root Argo CD Application."
   type        = string

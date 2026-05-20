@@ -30,8 +30,9 @@ ghcr_owner = "your-github-username"
 # podinfo_version        = "6.11.2"
 
 # GitOps mode ---------------------------------------------------------
+# In GitOps mode, ArgoCD reads gitops/*.yaml as the source of truth for
+# which apps run -- var.apps does NOT drive Mode B.
 # enable_gitops = true
 # repo_url      = "https://github.com/your-github-username/surf-task"
 # repo_revision = "main"
-# gitops_source_type = "directory" # switch to "helm" after gitops/Chart.yaml is pushed
 # argocd_host   = "argocd.localtest.me"
