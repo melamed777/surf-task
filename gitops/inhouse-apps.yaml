@@ -38,7 +38,7 @@ spec:
           values: |
             image:
               repository: ghcr.io/melamed777/{{app}}
-              tag: latest
+              tag: baa30d280b5180b9e2b02031f265bdc41cbf0622
             ingress:
               enabled: true
               className: nginx
