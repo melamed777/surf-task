@@ -26,6 +26,24 @@ locals {
 
   # Compute per-app hostnames: per-app override wins, else "<key>.<host_suffix>".
   app_hosts = { for k, v in var.apps : k => coalesce(v.host, "${k}.${var.host_suffix}") }
+
+  # Resolve each app's target namespace (per-app override > default). Then
+  # collect the unique set so each namespace is created exactly once even
+  # when several apps share one.
+  app_namespaces_per_app = { for k, v in var.apps : k => coalesce(v.namespace, var.apps_namespace) }
+  app_namespaces         = toset(values(local.app_namespaces_per_app))
+}
+
+# Create every namespace any app needs, plus the default one (used by
+# podinfo and as the fallback for apps that don't set a namespace).
+resource "kubernetes_namespace_v1" "app" {
+  for_each = setunion(local.app_namespaces, toset([var.apps_namespace]))
+
+  metadata {
+    name = each.key
+  }
+
+  depends_on = [kind_cluster.this]
 }
 
 module "app" {
@@ -33,7 +51,7 @@ module "app" {
   for_each = var.enable_gitops ? {} : var.apps
 
   release_name       = each.key
-  namespace          = kubernetes_namespace_v1.apps.metadata[0].name
+  namespace          = kubernetes_namespace_v1.app[local.app_namespaces_per_app[each.key]].metadata[0].name
   image_repo         = "ghcr.io/${var.ghcr_owner}/${each.value.image}"
   image_tag          = coalesce(each.value.tag, local.resolved_image_tag)
   image_pull_policy  = var.image_pull_policy != "" ? var.image_pull_policy : (coalesce(each.value.tag, local.resolved_image_tag) == "latest" ? "Always" : "IfNotPresent")
@@ -53,7 +71,7 @@ resource "helm_release" "podinfo" {
   count = var.enable_gitops ? 0 : 1
 
   name       = "podinfo"
-  namespace  = kubernetes_namespace_v1.apps.metadata[0].name
+  namespace  = kubernetes_namespace_v1.app[var.apps_namespace].metadata[0].name
   repository = "oci://ghcr.io/stefanprodan/charts"
   chart      = "podinfo"
   version    = var.podinfo_version

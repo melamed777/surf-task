@@ -98,6 +98,7 @@ variable "chart_version" {
 #   tag           (optional) override image_tag for this app
 #   host          (optional) override hostname; defaults to "<key>.<host_suffix>"
 #   replicas      (optional) default 2
+#   namespace     (optional) target k8s namespace; defaults to var.apps_namespace
 #   extra_values  (optional) raw map merged into Helm values, for one-off
 #                            overrides that don't deserve a top-level field
 # ---------------------------------------------------------------------------
@@ -108,6 +109,7 @@ variable "apps" {
     image        = string
     tag          = optional(string)
     host         = optional(string)
+    namespace    = optional(string)
     replicas     = optional(number, 2)
     extra_values = optional(any, {})
   }))

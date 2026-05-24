@@ -5,24 +5,29 @@ metadata:
   namespace: argocd
 spec:
   # Per-element fields:
-  #   name  -- identity (Argo CD Application name, Helm release name, label
-  #            used for the host prefix by default).
-  #   app   -- which container image to run. Decoupled from `name` so you
-  #            can spin up another instance of an existing app without
-  #            building a new image.
-  #   host  -- ingress hostname.
+  #   name      -- identity (Argo CD Application name, Helm release name,
+  #                label used for the host prefix by default).
+  #   app       -- which container image to run. Decoupled from `name` so
+  #                you can spin up another instance of an existing app
+  #                without building a new image.
+  #   host      -- ingress hostname.
+  #   namespace -- (optional) target Kubernetes namespace. Defaults to
+  #                "apps" if omitted.
   generators:
     - list:
         elements:
           - name: app1
             app:  app1
             host: app1.localtest.me
+            namespace: apps
           - name: app2
             app:  app2
             host: app2.localtest.me
-          # - name: app3
-          #   app:  app2
-          #   host: app3.localtest.me
+            namespace: apps
+          - name: app3
+            app:  app1
+            host: app3.localtest.me
+            namespace: tomer
   template:
     metadata:
       name: '{{name}}'
@@ -31,7 +36,7 @@ spec:
       project: default
       destination:
         server: https://kubernetes.default.svc
-        namespace: apps
+        namespace: '{{namespace}}'
       source:
         repoURL: https://github.com/melamed777/surf-task
         targetRevision: main

@@ -112,9 +112,5 @@ resource "helm_release" "metrics_server" {
   depends_on = [kind_cluster.this]
 }
 
-resource "kubernetes_namespace_v1" "apps" {
-  metadata {
-    name = var.apps_namespace
-  }
-  depends_on = [kind_cluster.this]
-}
+# Namespaces are created per-app in apps.tf (kubernetes_namespace_v1.app)
+# so each app can opt into its own namespace via var.apps[*].namespace.
