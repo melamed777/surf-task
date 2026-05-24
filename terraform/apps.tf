@@ -4,13 +4,20 @@
 # its upstream OCI chart. Enabled when var.enable_gitops == false.
 # ---------------------------------------------------------------------------
 
-# Resolve the current commit SHA at apply time. This lets us pin each apply
-# to the exact image CI produced for HEAD instead of riding the mutable
-# 'latest' tag. var.image_tag (default "auto") triggers this; any other
-# value is used verbatim.
+# Resolve the most recent commit SHA that actually triggered an image build,
+# not just HEAD. The CI workflow's `paths:` filter only fires on changes
+# under apps/, charts/, or the workflow file itself -- so HEAD may point at
+# a gitops-only or docs-only commit whose SHA never produced an image. Walk
+# the git log for the last commit touching those build inputs.
+# var.image_tag = "auto" enables this; any other value is used verbatim.
 data "external" "git_sha" {
-  count   = var.image_tag == "auto" ? 1 : 0
-  program = ["sh", "-c", "printf '{\"sha\":\"%s\"}' \"$(git -C ${path.module}/.. rev-parse HEAD 2>/dev/null || echo latest)\""]
+  count = var.image_tag == "auto" ? 1 : 0
+  program = ["sh", "-c", <<-EOT
+    sha=$(git -C ${path.module}/.. log -1 --format=%H -- apps charts .github/workflows/build-and-publish.yml 2>/dev/null)
+    [ -z "$sha" ] && sha=latest
+    printf '{"sha":"%s"}' "$sha"
+  EOT
+  ]
 }
 
 locals {
